@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tailor Cart | Find Tailors</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../styles/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (same as index.html, but Find Tailors active) -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold brand-logo" href="index.html">
+        Tailor Cart
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#mainNavbar" aria-controls="mainNavbar"
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html#categories">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="tailors.html">Find Tailors</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html#how-it-works">How It Works</a>
+          </li>
+        </ul>
+
+        <div class="d-flex gap-2">
+          <a href="#" class="btn btn-link text-decoration-none">Sign In</a>
+          <a href="#" class="btn btn-primary btn-join-tailor">Join as Tailor</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER / HERO SMALL -->
+  <section class="page-header py-4 py-md-5 border-bottom">
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+        <div>
+          <p class="small text-muted mb-1">
+            Home / <span class="text-secondary">Find Tailors</span>
+          </p>
+          <h1 class="page-title mb-2">Find Tailors Near You</h1>
+          <p class="page-subtitle mb-0">
+            Browse verified tailors across India by location, garment type, rating, and price.
+          </p>
+        </div>
+
+        <!-- Simple search bar -->
+        <form class="tailor-search-form d-flex flex-column flex-sm-row gap-2">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">🔍</span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Search tailors or services..."
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER BAR -->
+  <section class="tailor-filter-bar py-3">
+    <div class="container">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Location</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">📍</span>
+            <input type="text" class="form-control border-start-0" placeholder="Enter city" />
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Garment Type</label>
+          <select class="form-select form-select-sm">
+            <option selected>All categories</option>
+            <option>Saree</option>
+            <option>Kurta</option>
+            <option>Sherwani</option>
+            <option>Lehenga</option>
+            <option>Formal Suit</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Sort By</label>
+          <select class="form-select form-select-sm">
+            <option selected>Top rated</option>
+            <option>Most reviewed</option>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 d-flex justify-content-md-end mt-2 mt-md-4">
+          <button class="btn btn-primary btn-sm px-3 me-2">Apply Filters</button>
+          <button class="btn btn-outline-secondary btn-sm">Reset</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAILOR LIST GRID -->
+  <section class="py-4 py-md-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="small text-muted mb-0">
+          Showing <strong>8</strong> tailors near <strong>Mumbai</strong> (example)
+        </p>
+        <p class="small text-muted mb-0">
+          *Dynamic data will come from backend later
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Tailor Card 1 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card tailor-card h-100 border-0 shadow-sm">
+            <img
+              src="../assets/images/tailor-rajesh-kumar.jpg"
+              class="card-img-top"
+              alt="Rajesh Kumar"
+            >
+            <div class="card-body">
+              <h5 class="card-title mb-1">Rajesh Kumar</h5>
+              <p class="text-muted small mb-2">
+                📍 Mumbai, Maharashtra
+              </p>
+
+              <div class="d-flex align-items-center mb-2">
+                <span class="me-1">⭐</span>
+                <span class="fw-semibold me-1">4.8</span>
+                <span class="text-muted small">(156)</span>
+              </div>
+
+              <p class="small text-muted mb-2">
+                Saree blouses · Lehenga · Alterations
+              </p>
+              <p class="small fw-semibold mb-3">From ₹800</p>
+
+              <a href="tailor-profile.html" class="tailor-link">
+                View Profile →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tailor Card 2 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card tailor-card h-100 border-0 shadow-sm">
+            <img
+              src="../assets/images/tailor-priya-sharma.jpg"
+              class="card-img-top"
+              alt="Priya Sharma"
+            >
+            <div class="card-body">
+              <h5 class="card-title mb-1">Priya Sharma</h5>
+              <p class="text-muted small mb-2">
+                📍 Delhi, NCR
+              </p>
+
+              <div class="d-flex align-items-center mb-2">
+                <span class="me-1">⭐</span>
+                <span class="fw-semibold me-1">4.9</span>
+                <span class="text-muted small">(203)</span>
+              </div>
+
+              <p class="small text-muted mb-2">
+                Kurta · Suits · Designer wear
+              </p>
+              <p class="small fw-semibold mb-3">From ₹1,200</p>
+
+              <a href="#" class="tailor-link">
+                View Profile →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tailor Card 3 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card tailor-card h-100 border-0 shadow-sm">
+            <img
+              src="../assets/images/tailor-mohammed-ali.jpg"
+              class="card-img-top"
+              alt="Mohammed Ali"
+            >
+            <div class="card-body">
+              <h5 class="card-title mb-1">Mohammed Ali</h5>
+              <p class="text-muted small mb-2">
+                📍 Hyderabad, Telangana
+              </p>
+
+              <div class="d-flex align-items-center mb-2">
+                <span class="me-1">⭐</span>
+                <span class="fw-semibold me-1">4.7</span>
+                <span class="text-muted small">(89)</span>
+              </div>
+
+              <p class="small text-muted mb-2">
+                Sherwani · Traditional wear · Embroidery
+              </p>
+              <p class="small fw-semibold mb-3">From ₹1,500</p>
+
+              <a href="#" class="tailor-link">
+                View Profile →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tailor Card 4 (Sample extra) -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card tailor-card h-100 border-0 shadow-sm">
+            <img
+              src="../assets/images/tailor-neha-verma.jpg"
+              class="card-img-top"
+              alt="Tailor"
+            >
+            <div class="card-body">
+              <h5 class="card-title mb-1">Neha Verma</h5>
+              <p class="text-muted small mb-2">
+                📍 Bengaluru, Karnataka
+              </p>
+
+              <div class="d-flex align-items-center mb-2">
+                <span class="me-1">⭐</span>
+                <span class="fw-semibold me-1">4.6</span>
+                <span class="text-muted small">(74)</span>
+              </div>
+
+              <p class="small text-muted mb-2">
+                Lehenga · Gowns · Party wear
+              </p>
+              <p class="small fw-semibold mb-3">From ₹1,000</p>
+
+              <a href="#" class="tailor-link">
+                View Profile →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- You can duplicate these 4 blocks to show more tailors -->
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER (reuse same as index.html) -->
+  <footer class="footer-section pt-5 pb-4">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h4 class="brand-logo mb-3">Tailor Cart</h4>
+          <p class="small text mb-3">
+            Connecting customers with skilled local tailors across India for custom-made clothing.
+            Experience the perfect blend of traditional craftsmanship and modern convenience.
+          </p>
+          <div class="d-flex gap-3">
+            <a href="#" class="social-icon">📘</a>
+            <a href="#" class="social-icon">📸</a>
+            <a href="#" class="social-icon">🐦</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <h6 class="text-white mb-3">For Customers</h6>
+          <ul class="list-unstyled small footer-links">
+            <li><a href="index.html#categories">Browse Categories</a></li>
+            <li><a href="tailors.html">Find Tailors</a></li>
+            <li><a href="#">My Orders</a></li>
+            <li><a href="#">Help Center</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-4">
+          <h6 class="text-white mb-3">For Tailors</h6>
+          <ul class="list-unstyled small footer-links">
+            <li><a href="#">Join as Tailor</a></li>
+            <li><a href="#">Tailor Dashboard</a></li>
+            <li><a href="#">Resources</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="border-secondary my-4">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-muted">
+        <p class="mb-2 mb-md-0">
+          © 2024 Tailor Cart. All rights reserved.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="#" class="footer-links">Privacy Policy</a>
+          <a href="#" class="footer-links">Terms of Service</a>
+          <a href="#" class="footer-links">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom JS -->
+  <script src="../scripts/main.js"></script>
+</body>
+</html>
