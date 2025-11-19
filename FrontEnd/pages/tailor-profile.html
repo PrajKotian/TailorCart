@@ -72,54 +72,54 @@
   </section>
 
   <!-- PROFILE MAIN SECTION -->
-  <section class="py-4 py-md-5">
+  <section class="py-4 py-md-5" id="tailorProfile">
     <div class="container">
       <div class="row g-4">
         <!-- LEFT: PROFILE CARD -->
         <div class="col-lg-4">
           <div class="card tailor-profile-card border-0 shadow-sm">
-            <img
-              src="../assets/images/tailor-rajesh-kumar.jpg"
-              class="card-img-top"
-              alt="Rajesh Kumar"
-            >
-            <div class="card-body">
-              <h3 class="mb-1">Rajesh Kumar</h3>
-              <p class="text-muted small mb-2">
-                📍 Mumbai, Maharashtra · 15+ years experience
-              </p>
+  <img
+    id="tpImage"
+    src="../assets/images/tailor-rajesh-kumar.jpg"
+    class="card-img-top"
+    alt="Tailor"
+  >
+  <div class="card-body">
+    <h3 id="tpName" class="mb-1">Tailor Name</h3>
+    <p id="tpLocation" class="text-muted small mb-2">
+      📍 City, State · X+ years experience
+    </p>
 
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-1">⭐</span>
-                <span class="fw-semibold me-1">4.8</span>
-                <span class="text-muted small">(156 reviews)</span>
-              </div>
+    <div class="d-flex align-items-center mb-2">
+      <span class="me-1">⭐</span>
+      <span id="tpRating" class="fw-semibold me-1">4.8</span>
+      <span class="text-muted small">(156 reviews)</span>
+    </div>
 
-              <div class="mb-3">
-                <span class="badge bg-light text-dark me-1 mb-1">Saree Blouse</span>
-                <span class="badge bg-light text-dark me-1 mb-1">Lehenga</span>
-                <span class="badge bg-light text-dark mb-1">Alterations</span>
-              </div>
+    <div class="mb-3" id="tpSpecializationsBadges">
+      <!-- badges inserted by JS -->
+    </div>
 
-              <p class="small text-muted mb-1">
-                Base price:
-                <span class="fw-semibold text-dark">From ₹800 per garment</span>
-              </p>
-              <p class="small text-muted mb-3">
-                Typical delivery:
-                <span class="fw-semibold text-dark">7–10 days</span> depending on design.
-              </p>
+    <p class="small text-muted mb-1">
+      Base price:
+      <span id="tpBasePrice" class="fw-semibold text-dark">From ₹0 per garment</span>
+    </p>
+    <p class="small text-muted mb-3">
+      Typical delivery:
+      <span class="fw-semibold text-dark">7–10 days</span> depending on design.
+    </p>
 
-              <div class="d-grid gap-2">
-                <button class="btn btn-primary btn-sm">
-                  Request Custom Order
-                </button>
-                <button class="btn btn-outline-secondary btn-sm">
-                  Chat with Tailor (coming soon)
-                </button>
-              </div>
-            </div>
-          </div>
+    <div class="d-grid gap-2">
+      <button class="btn btn-primary btn-sm">
+        Request Custom Order
+      </button>
+      <button class="btn btn-outline-secondary btn-sm">
+        Chat with Tailor (coming soon)
+      </button>
+    </div>
+  </div>
+</div>
+
         </div>
 
         <!-- RIGHT: DETAILS -->
@@ -128,12 +128,9 @@
           <div class="card border-0 shadow-sm mb-4 tailor-section-card">
             <div class="card-body">
               <h5 class="mb-3">About</h5>
-              <p class="small text-muted mb-0">
-                Rajesh Kumar is a Mumbai-based master tailor specializing in saree blouses,
-                lehengas, and traditional Indian wear. With over 15 years of experience,
-                he blends classic hand-crafted techniques with modern styling to create
-                perfectly fitted garments for weddings, festivals, and special occasions.
-              </p>
+              <p id="tpAbout" class="small text-muted mb-0">
+  Loading tailor details...
+</p>
             </div>
           </div>
 

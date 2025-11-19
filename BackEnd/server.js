@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
+const tailorRoutes = require("./routes/tailorRoutes");
 const { tailors } = require("./models/dataStore");
 
 const app = express();
@@ -24,6 +25,8 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 // ---------- TAILOR ROUTES (READ ONLY FOR NOW) ----------
+
+app.use("/api/tailors", tailorRoutes);
 
 // Get all tailors (Find Tailors page)
 app.get("/api/tailors", (req, res) => {

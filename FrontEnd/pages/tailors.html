@@ -134,149 +134,23 @@
 
   <!-- TAILOR LIST GRID -->
   <section class="py-4 py-md-5">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <p class="small text-muted mb-0">
-          Showing <strong>8</strong> tailors near <strong>Mumbai</strong> (example)
-        </p>
-        <p class="small text-muted mb-0">
-          *Dynamic data will come from backend later
-        </p>
-      </div>
-
-      <div class="row g-4">
-        <!-- Tailor Card 1 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card tailor-card h-100 border-0 shadow-sm">
-            <img
-              src="../assets/images/tailor-rajesh-kumar.jpg"
-              class="card-img-top"
-              alt="Rajesh Kumar"
-            >
-            <div class="card-body">
-              <h5 class="card-title mb-1">Rajesh Kumar</h5>
-              <p class="text-muted small mb-2">
-                📍 Mumbai, Maharashtra
-              </p>
-
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-1">⭐</span>
-                <span class="fw-semibold me-1">4.8</span>
-                <span class="text-muted small">(156)</span>
-              </div>
-
-              <p class="small text-muted mb-2">
-                Saree blouses · Lehenga · Alterations
-              </p>
-              <p class="small fw-semibold mb-3">From ₹800</p>
-
-              <a href="tailor-profile.html" class="tailor-link">
-                View Profile →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tailor Card 2 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card tailor-card h-100 border-0 shadow-sm">
-            <img
-              src="../assets/images/tailor-priya-sharma.jpg"
-              class="card-img-top"
-              alt="Priya Sharma"
-            >
-            <div class="card-body">
-              <h5 class="card-title mb-1">Priya Sharma</h5>
-              <p class="text-muted small mb-2">
-                📍 Delhi, NCR
-              </p>
-
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-1">⭐</span>
-                <span class="fw-semibold me-1">4.9</span>
-                <span class="text-muted small">(203)</span>
-              </div>
-
-              <p class="small text-muted mb-2">
-                Kurta · Suits · Designer wear
-              </p>
-              <p class="small fw-semibold mb-3">From ₹1,200</p>
-
-              <a href="#" class="tailor-link">
-                View Profile →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tailor Card 3 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card tailor-card h-100 border-0 shadow-sm">
-            <img
-              src="../assets/images/tailor-mohammed-ali.jpg"
-              class="card-img-top"
-              alt="Mohammed Ali"
-            >
-            <div class="card-body">
-              <h5 class="card-title mb-1">Mohammed Ali</h5>
-              <p class="text-muted small mb-2">
-                📍 Hyderabad, Telangana
-              </p>
-
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-1">⭐</span>
-                <span class="fw-semibold me-1">4.7</span>
-                <span class="text-muted small">(89)</span>
-              </div>
-
-              <p class="small text-muted mb-2">
-                Sherwani · Traditional wear · Embroidery
-              </p>
-              <p class="small fw-semibold mb-3">From ₹1,500</p>
-
-              <a href="#" class="tailor-link">
-                View Profile →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tailor Card 4 (Sample extra) -->
-        <div class="col-md-6 col-lg-3">
-          <div class="card tailor-card h-100 border-0 shadow-sm">
-            <img
-              src="../assets/images/tailor-neha-verma.jpg"
-              class="card-img-top"
-              alt="Tailor"
-            >
-            <div class="card-body">
-              <h5 class="card-title mb-1">Neha Verma</h5>
-              <p class="text-muted small mb-2">
-                📍 Bengaluru, Karnataka
-              </p>
-
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-1">⭐</span>
-                <span class="fw-semibold me-1">4.6</span>
-                <span class="text-muted small">(74)</span>
-              </div>
-
-              <p class="small text-muted mb-2">
-                Lehenga · Gowns · Party wear
-              </p>
-              <p class="small fw-semibold mb-3">From ₹1,000</p>
-
-              <a href="#" class="tailor-link">
-                View Profile →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- You can duplicate these 4 blocks to show more tailors -->
-      </div>
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <p class="small text-muted mb-0">
+        Showing <strong id="tailorCount">0</strong> tailors
+      </p>
+      <p class="small text-muted mb-0">
+        Data loaded dynamically from backend
+      </p>
     </div>
-  </section>
+
+    <!-- JS will insert cards inside this div -->
+    <div id="tailorList" class="row g-4">
+      <!-- Tailor cards will be injected here -->
+    </div>
+  </div>
+</section>
+
 
   <!-- FOOTER (reuse same as index.html) -->
   <footer class="footer-section pt-5 pb-4">
