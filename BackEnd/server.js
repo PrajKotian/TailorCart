@@ -1,16 +1,19 @@
 // BackEnd/server.js
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const tailorRoutes = require("./routes/tailorRoutes");
-const { tailors } = require("./models/dataStore");
 
 const app = express();
 
 // ---------- MIDDLEWARE ----------
 app.use(cors());
 app.use(express.json());
+
+// serve uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ---------- BASIC ROUTES ----------
 app.get("/", (req, res) => {
@@ -24,26 +27,8 @@ app.get("/api/health", (req, res) => {
 // ---------- AUTH ROUTES ----------
 app.use("/api/auth", authRoutes);
 
-// ---------- TAILOR ROUTES (READ ONLY FOR NOW) ----------
-
+// ---------- TAILOR ROUTES ----------
 app.use("/api/tailors", tailorRoutes);
-
-// Get all tailors (Find Tailors page)
-app.get("/api/tailors", (req, res) => {
-  res.json(tailors);
-});
-
-// Get one tailor (Tailor Profile page)
-app.get("/api/tailors/:id", (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const tailor = tailors.find((t) => t.id === id);
-
-  if (!tailor) {
-    return res.status(404).json({ error: "Tailor not found" });
-  }
-
-  res.json(tailor);
-});
 
 // ---------- START SERVER ----------
 const PORT = process.env.PORT || 3000;

@@ -20,22 +20,50 @@ const getTailorById = (req, res) => {
 };
 
 // POST /api/tailors  → create tailor profile (from Join as Tailor form)
+// This now supports multipart/form-data with an optional image file
 const createTailorProfile = (req, res) => {
   const {
-    userId,          // optional for now, later link to Users
+    userId,
     name,
     city,
     area,
     experienceYears,
     startingPrice,
-    specializations, // array of strings
-    about
+    about,
+    gender
   } = req.body;
 
   if (!name || !city || !experienceYears || !startingPrice) {
     return res
       .status(400)
       .json({ error: "name, city, experienceYears, startingPrice are required" });
+  }
+
+  // specializations & services will arrive as JSON strings from frontend
+  let specializations = [];
+  if (req.body.specializations) {
+    try {
+      specializations = JSON.parse(req.body.specializations);
+      if (!Array.isArray(specializations)) specializations = [];
+    } catch {
+      specializations = [];
+    }
+  }
+
+  let services = [];
+  if (req.body.services) {
+    try {
+      services = JSON.parse(req.body.services);
+      if (!Array.isArray(services)) services = [];
+    } catch {
+      services = [];
+    }
+  }
+
+  // Handle uploaded file (multer puts it into req.file)
+  let profileImageUrl = "";
+  if (req.file) {
+    profileImageUrl = `/uploads/${req.file.filename}`;
   }
 
   const newTailor = {
@@ -46,8 +74,11 @@ const createTailorProfile = (req, res) => {
     area: area || "",
     experienceYears: Number(experienceYears),
     startingPrice: Number(startingPrice),
-    specializations: Array.isArray(specializations) ? specializations : [],
+    specializations,
     about: about || "",
+    profileImageUrl,
+    gender: gender === "female" ? "female" : "male",
+    services,
     rating: 0
   };
 
@@ -58,8 +89,6 @@ const createTailorProfile = (req, res) => {
     tailor: newTailor
   });
 };
-
-
 
 // DELETE /api/tailors/:id
 const deleteTailor = (req, res) => {
