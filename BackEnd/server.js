@@ -5,6 +5,7 @@ const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const tailorRoutes = require("./routes/tailorRoutes");
+const orderRoutes = require("./routes/orderRoutes")
 
 const app = express();
 
@@ -29,6 +30,9 @@ app.use("/api/auth", authRoutes);
 
 // ---------- TAILOR ROUTES ----------
 app.use("/api/tailors", tailorRoutes);
+
+// ---------- ORDER ROUTES ----------
+app.use("/api/orders", orderRoutes);
 
 // ---------- START SERVER ----------
 const PORT = process.env.PORT || 3000;

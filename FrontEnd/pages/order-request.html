@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tailor Cart | Order Request</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../styles/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (same structure as other pages) -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold brand-logo" href="index.html">
+        Tailor Cart
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#mainNavbar" aria-controls="mainNavbar"
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html#categories">Categories</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="tailors.html">Find Tailors</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html#how-it-works">How It Works</a>
+          </li>
+        </ul>
+
+        <div class="d-flex gap-2">
+          <a href="login.html" class="btn btn-link text-decoration-none">Sign In</a>
+          <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor">Join as Tailor</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header py-4 border-bottom">
+    <div class="container">
+      <p class="small text-muted mb-1">
+        Home / <span class="text-secondary">Order Request</span>
+      </p>
+      <h1 class="page-title mb-0">Request a Custom Order</h1>
+      <p class="page-subtitle mb-0 small text-muted">
+        Share your garment details, fabric preferences, and delivery preferences. Your tailor will review and confirm the final quote.
+      </p>
+    </div>
+  </section>
+
+  <!-- MULTI-STEP ORDER FLOW -->
+  <main class="py-4 py-md-5">
+    <div class="container">
+
+      <!-- STEP PROGRESS -->
+      <ul class="order-steps list-unstyled d-flex justify-content-between mb-4">
+        <li class="order-step-item active" data-step="1">
+          <span class="order-step-number">1</span>
+          <span class="order-step-label">Garment &amp; Design</span>
+        </li>
+        <li class="order-step-item" data-step="2">
+          <span class="order-step-number">2</span>
+          <span class="order-step-label">Fabric &amp; Measurements</span>
+        </li>
+        <li class="order-step-item" data-step="3">
+          <span class="order-step-number">3</span>
+          <span class="order-step-label">Delivery &amp; Review</span>
+        </li>
+      </ul>
+
+      <!-- ORDER FLOW WRAPPER -->
+      <div id="orderMultiStep">
+        <!-- STEP 1 -->
+        <section id="orderStep1" class="order-step-card">
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-3 p-md-4">
+              <h5 class="mb-3">Step 1 · Garment &amp; Design</h5>
+
+              <!-- Garment type -->
+              <div class="mb-3">
+                <label class="form-label small">Garment Type</label>
+                <select id="orderGarmentType" class="form-select">
+                  <option value="">Select garment type</option>
+                  <!-- Options will be updated from JS (tailor specializations or default list) -->
+                  <option>Blouse</option>
+                  <option>Kurta / Suits</option>
+                  <option>Shirt</option>
+                  <option>Lehenga</option>
+                  <option>Sherwani</option>
+                  <option>Gown</option>
+                  <option>Formal Suit</option>
+                </select>
+                <div class="small text-muted mt-1">
+                  Only garments that the tailor offers should be selected.
+                </div>
+              </div>
+
+              <!-- Design upload -->
+              <div class="mb-3">
+                <label class="form-label small">Design / Inspiration Image (optional)</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="orderDesignImage"
+                  accept="image/*"
+                >
+                <div class="small text-muted mt-1">
+                  Upload a reference image to help the tailor understand your design idea.
+                  Final pricing will still be confirmed by the tailor.
+                </div>
+
+                <div id="orderDesignPreview" class="order-design-preview mt-3 d-none">
+                  <img src="" alt="Design preview" class="img-fluid rounded-3">
+                </div>
+              </div>
+
+              <!-- Basic design toggle -->
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="orderUseBasicDesign">
+                <label class="form-check-label small" for="orderUseBasicDesign">
+                  Use a simple classic design instead (no special pattern or heavy work).
+                </label>
+              </div>
+
+              <!-- Notes -->
+              <div class="mb-3">
+                <label class="form-label small">Any specific details? (optional)</label>
+                <textarea
+                  class="form-control"
+                  id="orderDesignNotes"
+                  rows="3"
+                  placeholder="Neck style, sleeve length, fit preference, occasion, etc."
+                ></textarea>
+              </div>
+
+              <div class="d-flex justify-content-end mt-3">
+                <button id="orderNext1" class="btn btn-primary">
+                  Next · Fabric &amp; Measurements
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section id="orderStep2" class="order-step-card d-none">
+          <!-- FABRIC CARD -->
+          <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-3 p-md-4">
+              <h5 class="mb-3">Step 2 · Fabric</h5>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="orderFabricOption"
+                    id="fabricCustomer"
+                    value="customer"
+                    checked
+                  >
+                  <label class="form-check-label small" for="fabricCustomer">
+                    I will provide fabric
+                  </label>
+                </div>
+
+                <div class="form-check mt-2">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="orderFabricOption"
+                    id="fabricTailor"
+                    value="tailor"
+                  >
+                  <label class="form-check-label small" for="fabricTailor">
+                    Tailor provides fabric
+                  </label>
+                </div>
+
+                <div id="fabricTailorInfo" class="small text-muted mt-2 d-none">
+                  Approximate extra cost will be added based on fabric type and quality.
+                  Final fabric pricing will be confirmed by the tailor.
+                </div>
+              </div>
+
+              <div class="mb-0">
+                <label class="form-label small">Fabric details (optional)</label>
+                <input
+                  type="text"
+                  id="orderFabricDetails"
+                  class="form-control"
+                  placeholder="e.g. Georgette, silk blend, heavy lining, colour preferences"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- MEASUREMENTS CARD -->
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-3 p-md-4">
+              <h5 class="mb-3">Measurements</h5>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="order-measure-option active" data-value="tailor">
+                    <h6 class="mb-1 small">Tailor will take measurements (Recommended)</h6>
+                    <p class="small text-muted mb-0">
+                      The tailor will contact you to take accurate measurements for best fit.
+                    </p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="order-measure-option" data-value="manual">
+                    <h6 class="mb-1 small">I will enter measurements manually</h6>
+                    <p class="small text-muted mb-0">
+                      Enter key measurements yourself (not recommended for complex garments).
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div id="measurementWarning" class="alert alert-warning small d-none">
+                For customized garments, accurate measurements are critical for a perfect fit.
+                We strongly recommend letting the tailor take your measurements whenever possible.
+              </div>
+
+              <!-- Manual measurements -->
+              <div id="measureManual" class="mb-3 d-none">
+                <p class="small text-muted mb-2">
+                  Enter only the essentials. Detailed measurement sheet can be shared later if needed.
+                </p>
+
+                <div class="row g-3">
+                  <div class="col-sm-6 col-md-3">
+                    <label class="form-label small">Bust / Chest (in)</label>
+                    <input type="number" id="mBust" class="form-control form-control-sm">
+                  </div>
+                  <div class="col-sm-6 col-md-3">
+                    <label class="form-label small">Waist (in)</label>
+                    <input type="number" id="mWaist" class="form-control form-control-sm">
+                  </div>
+                  <div class="col-sm-6 col-md-3">
+                    <label class="form-label small">Hip (in)</label>
+                    <input type="number" id="mHip" class="form-control form-control-sm">
+                  </div>
+                  <div class="col-sm-6 col-md-3">
+                    <label class="form-label small">Length (in)</label>
+                    <input type="number" id="mLength" class="form-control form-control-sm">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between mt-3">
+                <button id="orderBack2" class="btn btn-outline-secondary">
+                  Back
+                </button>
+                <button id="orderNext2" class="btn btn-primary">
+                  Next · Delivery &amp; Review
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section id="orderStep3" class="order-step-card d-none">
+          <div class="row g-4">
+            <!-- Delivery -->
+            <div class="col-lg-7">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-3 p-md-4">
+                  <h5 class="mb-3">Step 3 · Delivery Preferences</h5>
+
+                  <!-- Address -->
+                  <div class="mb-3">
+                    <label class="form-label small">Delivery Address</label>
+                    <textarea
+                      id="orderAddress"
+                      rows="3"
+                      class="form-control"
+                      placeholder="House / Flat number, street, area, city, pincode"
+                    ></textarea>
+                  </div>
+
+                  <div class="row g-3">
+                    <div class="col-sm-6">
+                      <label class="form-label small">Preferred delivery date</label>
+                      <input type="date" id="orderDeliveryDate" class="form-control">
+                      <div class="small text-muted mt-1">
+                        Tailor will confirm the final delivery date based on workload.
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <label class="form-label small">Preferred time slot</label>
+                      <select id="orderTimeSlot" class="form-select">
+                        <option value="any">Any time</option>
+                        <option value="morning">Morning (9 AM – 12 PM)</option>
+                        <option value="evening">Evening (5 PM – 8 PM)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summary & Payment -->
+            <div class="col-lg-5">
+              <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-3 p-md-4 d-flex flex-column">
+                  <h5 class="mb-3">Order Summary</h5>
+
+                  <div class="small mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Garment</span>
+                      <span id="summaryGarment" class="fw-semibold">—</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Fabric</span>
+                      <span id="summaryFabric" class="fw-semibold">—</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Measurements</span>
+                      <span id="summaryMeasurement" class="fw-semibold">—</span>
+                    </div>
+                  </div>
+
+                  <hr>
+
+                  <div class="small mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>Stitching charge</span>
+                      <span id="summaryStitching" class="text-muted">To be quoted by tailor</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>Fabric charge</span>
+                      <span id="summaryFabricCharge" class="text-muted">Depends on fabric choice</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>Add-ons</span>
+                      <span id="summaryAddOns" class="text-muted">If applicable</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 fw-semibold">
+                      <span>Total</span>
+                      <span id="summaryTotal" class="text-primary">
+                        Will be shared after tailor review
+                      </span>
+                    </div>
+                  </div>
+
+                  <hr>
+
+                  <!-- Payment info -->
+                  <div class="mb-3">
+                    <label class="form-label small">Payment</label>
+                    <p class="small text-muted mb-1">
+                      Payment will be collected only after the tailor reviews your request,
+                      confirms the design and shares the final quote.
+                    </p>
+                  </div>
+
+                  <div class="mt-auto">
+                    <button id="orderSubmit" class="btn btn-primary w-100 mb-2">
+                      Send Request to Tailor
+                    </button>
+                    <button id="orderBack3" class="btn btn-outline-secondary w-100">
+                      Back
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <section id="orderSuccess" class="d-none py-5">
+        <div class="d-flex justify-content-center">
+          <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 order-success-card">
+            <div class="order-success-icon mb-3">✔</div>
+            <h4 class="mb-2">Order Request Sent</h4>
+            <p class="text-muted mb-4">
+              Your tailor will review your request and share the final quote and delivery timeline.
+              You’ll be notified once they respond.
+            </p>
+            <a href="#" class="btn btn-primary">View My Orders</a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FOOTER (same layout as other pages) -->
+  <footer class="footer-section pt-5 pb-4">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h4 class="brand-logo mb-3">Tailor Cart</h4>
+          <p class="small text mb-3">
+            Connecting customers with skilled local tailors across India for custom-made clothing.
+            Experience the perfect blend of traditional craftsmanship and modern convenience.
+          </p>
+          <div class="d-flex gap-3">
+            <a href="#" class="social-icon">📘</a>
+            <a href="#" class="social-icon">📸</a>
+            <a href="#" class="social-icon">🐦</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <h6 class="text-white mb-3">For Customers</h6>
+          <ul class="list-unstyled small footer-links">
+            <li><a href="index.html#categories">Browse Categories</a></li>
+            <li><a href="tailors.html">Find Tailors</a></li>
+            <li><a href="#">My Orders</a></li>
+            <li><a href="#">Help Center</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-4">
+          <h6 class="text-white mb-3">For Tailors</h6>
+          <ul class="list-unstyled small footer-links">
+            <li><a href="signup-tailor.html">Join as Tailor</a></li>
+            <li><a href="#">Tailor Dashboard</a></li>
+            <li><a href="#">Resources</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="border-secondary my-4">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-muted">
+        <p class="mb-2 mb-md-0">
+          © 2024 Tailor Cart. All rights reserved.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="#" class="footer-links">Privacy Policy</a>
+          <a href="#" class="footer-links">Terms of Service</a>
+          <a href="#" class="footer-links">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="../scripts/main.js"></script>
+</body>
+</html>

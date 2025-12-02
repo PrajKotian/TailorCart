@@ -2,9 +2,78 @@
 
 const { tailors, nextIds } = require("../models/dataStore");
 
-// GET /api/tailors  → list all tailors
+/**
+ * GET /api/tailors
+ * Optional query params:
+ *  - city        (exact match, case-insensitive)
+ *  - q           (free text: name, city, area, specializations)
+ *  - spec        (match specialization text, e.g. "Lehenga")
+ *  - minPrice    (numeric)
+ *  - maxPrice    (numeric)
+ */
 const getAllTailors = (req, res) => {
-  res.json(tailors);
+  const { city, q, spec, minPrice, maxPrice } = req.query;
+
+  let result = [...tailors];
+
+  // Filter by city (if provided)
+  if (city && city.trim() !== "") {
+    const cityLower = city.trim().toLowerCase();
+    result = result.filter(
+      (t) => t.city && t.city.toLowerCase() === cityLower
+    );
+  }
+
+  // Filter by specialization text (if provided)
+  if (spec && spec.trim() !== "") {
+    const specLower = spec.trim().toLowerCase();
+    result = result.filter(
+      (t) =>
+        Array.isArray(t.specializations) &&
+        t.specializations.some((s) =>
+          s.toLowerCase().includes(specLower)
+        )
+    );
+  }
+
+  // Free text search (name, city, area, specializations)
+  if (q && q.trim() !== "") {
+    const qLower = q.trim().toLowerCase();
+    result = result.filter((t) => {
+      const inName = t.name && t.name.toLowerCase().includes(qLower);
+      const inCity = t.city && t.city.toLowerCase().includes(qLower);
+      const inArea =
+        t.area && t.area.toLowerCase().includes(qLower);
+      const inSpecs =
+        Array.isArray(t.specializations) &&
+        t.specializations.some((s) =>
+          s.toLowerCase().includes(qLower)
+        );
+
+      return inName || inCity || inArea || inSpecs;
+    });
+  }
+
+  // Price range
+  if (minPrice) {
+    const min = Number(minPrice);
+    if (!Number.isNaN(min)) {
+      result = result.filter(
+        (t) => Number(t.startingPrice) >= min
+      );
+    }
+  }
+
+  if (maxPrice) {
+    const max = Number(maxPrice);
+    if (!Number.isNaN(max)) {
+      result = result.filter(
+        (t) => Number(t.startingPrice) <= max
+      );
+    }
+  }
+
+  res.json(result);
 };
 
 // GET /api/tailors/:id  → single tailor
@@ -20,17 +89,18 @@ const getTailorById = (req, res) => {
 };
 
 // POST /api/tailors  → create tailor profile (from Join as Tailor form)
-// This now supports multipart/form-data with an optional image file
 const createTailorProfile = (req, res) => {
   const {
-    userId,
+    userId,          // optional for now, later link to Users
     name,
     city,
     area,
     experienceYears,
     startingPrice,
+    specializations, // array or JSON string
     about,
-    gender
+    gender,          // "male" / "female" (optional)
+    services         // array or JSON string
   } = req.body;
 
   if (!name || !city || !experienceYears || !startingPrice) {
@@ -39,30 +109,33 @@ const createTailorProfile = (req, res) => {
       .json({ error: "name, city, experienceYears, startingPrice are required" });
   }
 
-  // specializations & services will arrive as JSON strings from frontend
-  let specializations = [];
-  if (req.body.specializations) {
+  // If specializations/services come as JSON string (common with FormData)
+  let parsedSpecs = [];
+  if (typeof specializations === "string") {
     try {
-      specializations = JSON.parse(req.body.specializations);
-      if (!Array.isArray(specializations)) specializations = [];
+      parsedSpecs = JSON.parse(specializations);
     } catch {
-      specializations = [];
+      parsedSpecs = [];
     }
+  } else if (Array.isArray(specializations)) {
+    parsedSpecs = specializations;
   }
 
-  let services = [];
-  if (req.body.services) {
+  let parsedServices = [];
+  if (typeof services === "string") {
     try {
-      services = JSON.parse(req.body.services);
-      if (!Array.isArray(services)) services = [];
+      parsedServices = JSON.parse(services);
     } catch {
-      services = [];
+      parsedServices = [];
     }
+  } else if (Array.isArray(services)) {
+    parsedServices = services;
   }
 
-  // Handle uploaded file (multer puts it into req.file)
+  // If using multer, profile image url may be on req.file
   let profileImageUrl = "";
-  if (req.file) {
+  if (req.file && req.file.filename) {
+    // path relative to a "public/uploads" folder for example
     profileImageUrl = `/uploads/${req.file.filename}`;
   }
 
@@ -74,12 +147,12 @@ const createTailorProfile = (req, res) => {
     area: area || "",
     experienceYears: Number(experienceYears),
     startingPrice: Number(startingPrice),
-    specializations,
+    specializations: parsedSpecs,
     about: about || "",
+    rating: 0,
+    gender: gender || "male",
     profileImageUrl,
-    gender: gender === "female" ? "female" : "male",
-    services,
-    rating: 0
+    services: parsedServices
   };
 
   tailors.push(newTailor);

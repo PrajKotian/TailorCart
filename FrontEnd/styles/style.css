@@ -243,6 +243,19 @@ a:hover {
   box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
 }
 
+.category-img-wrapper {
+  overflow: hidden;
+}
+
+.category-img-wrapper img {
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-img-wrapper img {
+  transform: scale(1.05);
+}
+
+
 /* ------------------------------
    FEATURED TAILORS
 ------------------------------ */
@@ -610,4 +623,130 @@ a:hover {
   }
 }
 
+/* ------------------------------
+   ORDER REQUEST PAGE
+------------------------------ */
 
+.order-steps {
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.order-step-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.order-step-item .order-step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--tc-primary, #f4a261);
+  color: var(--tc-primary, #f4a261);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.order-step-item.active {
+  opacity: 1;
+}
+
+.order-step-item.active .order-step-number {
+  background-color: var(--tc-primary, #f4a261);
+  color: #fff;
+}
+
+.order-step-label {
+  font-weight: 500;
+}
+
+.order-step-card .card {
+  border-radius: 1.25rem;
+}
+
+.order-design-preview img {
+  max-height: 220px;
+  object-fit: cover;
+}
+
+/* measurement options */
+.order-measure-option {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background-color: #fff;
+}
+
+.order-measure-option:hover {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.order-measure-option.active {
+  border-color: var(--tc-primary, #f4a261);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+/* success card */
+.order-success-card {
+  max-width: 420px;
+}
+
+.order-success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background-color: rgba(76, 175, 80, 0.09);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: #2e7d32;
+}
+
+/* responsive tweaks */
+@media (max-width: 767.98px) {
+  .order-step-item {
+    font-size: 0.8rem;
+  }
+
+  .order-step-label {
+    display: none; /* just show numbers on tiny screens */
+  }
+}
+
+/* Tailor card hover effect */
+.tailor-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.tailor-card-img-wrapper {
+  overflow: hidden;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.tailor-card img {
+  transition: transform 0.2s ease;
+}
+
+.tailor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+}
+
+.tailor-card:hover img {
+  transform: scale(1.03);
+}
