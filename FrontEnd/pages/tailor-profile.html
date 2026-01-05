@@ -25,13 +25,15 @@
   <body>
     <!-- NAVBAR -->
     <nav
-      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar"
     >
       <div class="container">
-        <a class="navbar-brand fw-bold brand-logo" href="index.html">
-          Tailor Cart
-        </a>
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold brand-logo" href="index.html"
+          >Tailor Cart</a
+        >
 
+        <!-- Mobile toggle -->
         <button
           class="navbar-toggler"
           type="button"
@@ -45,6 +47,7 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
+          <!-- Nav links -->
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link" href="index.html">Home</a>
@@ -53,24 +56,111 @@
               <a class="nav-link" href="index.html#categories">Categories</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="tailors.html"
-                >Find Tailors</a
-              >
+              <a class="nav-link" href="tailors.html">Find Tailors</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="index.html#how-it-works"
                 >How It Works</a
               >
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">About Us</a>
+            </li>
           </ul>
 
-          <div class="d-flex gap-2">
-            <a href="login.html" class="btn btn-link text-decoration-none"
+          <!-- RIGHT SIDE: GUEST -->
+          <div class="d-flex gap-2 align-items-center" id="navGuest">
+            <a
+              href="login.html"
+              class="btn btn-link text-decoration-none nav-link-btn"
               >Sign In</a
             >
-            <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor"
+            <a
+              href="signup-tailor.html"
+              class="btn btn-primary btn-join-tailor tc-magnetic"
               >Join as Tailor</a
             >
+          </div>
+
+          <!-- RIGHT SIDE: AUTH -->
+          <div class="d-none" id="navAuth">
+            <div class="nav-auth-wrap">
+              <!-- User pill dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn nav-user-btn dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span class="nav-user-pill">
+                    <span class="nav-user-dot"></span>
+                    <span class="nav-user-text"
+                      >Hi, <span id="navUserName">User</span></span
+                    >
+                  </span>
+                </button>
+
+                <!-- Upgraded dropdown -->
+                <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                  <!-- Header -->
+                  <li>
+                    <div class="tc-dd__head">
+                      <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                      <div>
+                        <p class="tc-dd__name mb-0" id="navUserNameMenu">
+                          User
+                        </p>
+                        <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                      </div>
+                    </div>
+                  </li>
+
+                  <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                  <li>
+                    <a class="dropdown-item" href="profile.html">
+                      <span class="tc-dd__ico">👤</span>
+                      <span>My Profile</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="customer-dashboard.html">
+                      <span class="tc-dd__ico">🧾</span>
+                      <span>My Orders</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailors.html">
+                      <span class="tc-dd__ico">✂️</span>
+                      <span>Find Tailors</span>
+                    </a>
+                  </li>
+
+                  <li><hr class="dropdown-divider" /></li>
+
+                  <li>
+                    <button
+                      class="dropdown-item text-danger"
+                      id="navLogoutBtn"
+                      type="button"
+                    >
+                      <span class="tc-dd__ico">⎋</span>
+                      <span>Logout</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Separate button -->
+              <a
+                href="tailors.html"
+                class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic"
+                >+ New Order</a
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -129,7 +219,11 @@
                 </p>
 
                 <div class="d-grid gap-2">
-                  <a href="order-request.html?tailorId=1" class="btn btn-primary btn-sm">
+                  <a
+                    id="tpRequestOrderBtn"
+                    href="order-request.html"
+                    class="btn btn-primary btn-sm"
+                  >
                     Request Custom Order
                   </a>
 
@@ -286,6 +380,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JS -->
+    <script src="../scripts/navbar-auth.js"></script>
     <script src="../scripts/main.js"></script>
+
+    <!-- ✅ IMPORTANT: NO GUARD HERE (public tailor profile must be accessible) -->
   </body>
 </html>

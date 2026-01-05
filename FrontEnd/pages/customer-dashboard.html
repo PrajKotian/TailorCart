@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Tailor Cart | Find Tailors</title>
+    <title>Tailor Cart | Customer Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Google Fonts -->
@@ -17,10 +17,15 @@
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
     />
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../styles/style.css" />
+
+    <!-- ✅ Guard must run before anything else on protected pages -->
+    <script src="../scripts/guards/customer-guard.js"></script>
   </head>
   <body>
     <!-- NAVBAR -->
@@ -166,133 +171,111 @@
       </div>
     </nav>
 
-    <!-- PAGE HEADER / HERO SMALL -->
-    <section class="page-header py-4 py-md-5 border-bottom">
+    <!-- PAGE HEADER -->
+    <section class="py-4 bg-light">
       <div class="container">
         <div
-          class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
+          class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2"
         >
           <div>
-            <p class="small text-muted mb-1">
-              Home / <span class="text-secondary">Find Tailors</span>
-            </p>
-            <h1 class="page-title mb-2">Find Tailors Near You</h1>
-            <p class="page-subtitle mb-0">
-              Browse verified tailors across India by location, garment type,
-              rating, and price.
+            <h2 class="mb-1">Customer Dashboard</h2>
+            <p class="text-muted mb-0">
+              Track your orders, accept quotes, and follow delivery updates.
             </p>
           </div>
 
-          <!-- Simple search bar -->
-          <form class="tailor-search-form d-flex flex-column flex-sm-row gap-2">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0">🔍</span>
-              <input
-                type="text"
-                class="form-control border-start-0"
-                placeholder="Search tailors or services..."
-                id="tailorSearchInput"
-              />
-            </div>
-          </form>
+          <a href="tailors.html" class="btn btn-primary">+ Place New Order</a>
         </div>
       </div>
     </section>
 
-    <!-- FILTER BAR -->
-    <section class="tailor-filter-bar py-3">
+    <!-- SUMMARY CARDS -->
+    <section class="py-4">
       <div class="container">
-        <div class="row g-2 align-items-center">
-          <div class="col-md-3">
-            <label class="form-label small text-muted mb-1">Location</label>
-            <div class="input-group input-group-sm">
-              <span class="input-group-text bg-white border-end-0">📍</span>
-              <input
-                type="text"
-                class="form-control border-start-0"
-                placeholder="Enter city"
-                id="tailorLocationInput"
-              />
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label small text-muted mb-1">Garment Type</label>
-            <select class="form-select form-select-sm" id="tailorGarmentFilter">
-              <option value="all" selected>All categories</option>
-              <option value="saree">Saree</option>
-              <option value="kurta">Kurta</option>
-              <option value="sherwani">Sherwani</option>
-              <option value="lehenga">Lehenga</option>
-              <option value="formal">Formal Suit</option>
-            </select>
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label small text-muted mb-1">Sort By</label>
-            <select class="form-select form-select-sm" id="tailorSortSelect">
-              <option value="rating" selected>Top rated</option>
-              <option value="reviews">Most reviewed</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-            </select>
-          </div>
-
-          <div class="col-md-3 d-flex justify-content-md-end mt-2 mt-md-4">
-            <button
-              class="btn btn-primary btn-sm px-3 me-2"
-              id="applyFiltersBtn"
-              type="button"
-            >
-              Apply Filters
-            </button>
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              id="resetFiltersBtn"
-              type="button"
-            >
-              Reset
-            </button>
-          </div>
+        <div class="row g-3" id="cdSummaryRow">
+          <!-- injected by JS -->
         </div>
       </div>
     </section>
 
-    <!-- TAILOR LIST GRID -->
-    <section class="py-4 py-md-5">
+    <!-- ORDERS LIST -->
+    <section class="pb-5">
       <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <p class="small text-muted mb-0">
-            Showing <strong id="tailorCount">0</strong> tailors
-          </p>
-          <p class="small text-muted mb-0">
-            Data loaded dynamically from backend
-          </p>
+          <h4 class="mb-0">My Orders</h4>
+          <select
+            class="form-select form-select-sm"
+            style="max-width: 220px"
+            id="cdStatusFilter"
+          >
+            <option value="ALL">All Status</option>
+            <option value="REQUESTED">Requested</option>
+            <option value="QUOTED">Quoted</option>
+            <option value="ACCEPTED">Accepted</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="READY">Ready</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
         </div>
 
-        <!-- JS will insert cards inside this div -->
-        <div id="tailorList" class="row g-4">
-          <!-- Tailor cards will be injected here -->
-        </div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div id="cdOrdersEmpty" class="text-center py-5 d-none">
+              <p class="mb-2 fw-semibold">No orders yet.</p>
+              <p class="text-muted mb-3">
+                Go to “Find Tailors” and place your first order.
+              </p>
+              <a href="tailors.html" class="btn btn-primary">Find Tailors</a>
+            </div>
 
-        <!-- PAGINATION SECTION -->
-        <div class="d-flex justify-content-end mt-3">
-          <nav aria-label="Tailor pages">
-            <ul class="pagination pagination-sm mb-0" id="tailorPagination">
-              <!-- JS will insert page buttons here -->
-            </ul>
-          </nav>
+            <div class="table-responsive d-none" id="cdOrdersTableWrap">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Tailor</th>
+                    <th>Garment</th>
+                    <th>Status</th>
+                    <th>Quote</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cdOrdersTbody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- FOOTER (reuse same as index.html) -->
+    <!-- ORDER DETAILS MODAL -->
+    <div class="modal fade" id="cdOrderModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Order Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="cdOrderModalBody">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER (your existing) -->
     <footer class="footer-section pt-5 pb-4">
       <div class="container">
         <div class="row g-4">
           <div class="col-md-4">
             <h4 class="brand-logo mb-3">Tailor Cart</h4>
-            <p class="small text mb-3">
+            <p class="small mb-3">
               Connecting customers with skilled local tailors across India for
               custom-made clothing. Experience the perfect blend of traditional
               craftsmanship and modern convenience.
@@ -307,7 +290,7 @@
           <div class="col-md-4">
             <h6 class="text-white mb-3">For Customers</h6>
             <ul class="list-unstyled small footer-links">
-              <li><a href="index.html#categories">Browse Categories</a></li>
+              <li><a href="#categories">Browse Categories</a></li>
               <li><a href="tailors.html">Find Tailors</a></li>
               <li><a href="#">My Orders</a></li>
               <li><a href="#">Help Center</a></li>
@@ -343,10 +326,12 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JS -->
+    <!-- Shared scripts -->
     <script src="../scripts/navbar-auth.js"></script>
-    <script src="../scripts/main.js"></script>
+    <script src="../scripts/authStore.js"></script>
+    <script src="../scripts/ordersStore.js"></script>
 
-    <!-- ✅ IMPORTANT: NO GUARD HERE (Find Tailors should be accessible) -->
+    <!-- ✅ THIS WAS MISSING (renders the dashboard) -->
+    <script src="../scripts/customer-dashboard.js"></script>
   </body>
 </html>

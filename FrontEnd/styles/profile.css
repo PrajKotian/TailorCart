@@ -1,0 +1,569 @@
+/* Tailor Cart - Profile Dashboard (WOW) */
+
+:root {
+  --tc-primary: #d97706;
+  --tc-primary-dark: #b45309;
+  --tc-text: #0f172a;
+  --tc-muted: #64748b;
+
+  --tc-card: rgba(255, 255, 255, 0.74);
+  --tc-border: rgba(15, 23, 42, 0.10);
+  --tc-shadow: 0 18px 55px rgba(15, 23, 42, 0.12);
+}
+
+.tc-profile {
+  background: #fff;
+  color: var(--tc-text);
+  overflow-x: hidden;
+}
+
+/* Progress */
+.tc-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.06);
+}
+.tc-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--tc-primary), #fbbf24);
+  transform-origin: left;
+}
+
+/* Ambient (never block clicks) */
+.tc-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.tc-grain {
+  position: absolute;
+  inset: -40%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E");
+  transform: rotate(2deg);
+  opacity: 0.20;
+  mix-blend-mode: multiply;
+}
+.tc-spotlight {
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(217,119,6,0.16), rgba(217,119,6,0.0) 60%);
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 28%;
+  filter: blur(4px);
+  opacity: 0.85;
+}
+.tc-threads .thread {
+  position: absolute;
+  width: 2px;
+  height: 120vh;
+  top: -10vh;
+  background: linear-gradient(to bottom, rgba(217,119,6,0), rgba(217,119,6,0.22), rgba(217,119,6,0));
+  opacity: 0.8;
+  animation: floatThread 6s ease-in-out infinite;
+}
+.tc-threads .t1 { left: 7%; animation-delay: 0s; }
+.tc-threads .t2 { left: 22%; animation-delay: 1s; opacity: 0.55; }
+.tc-threads .t3 { left: 46%; animation-delay: 2s; }
+.tc-threads .t4 { left: 68%; animation-delay: 1.3s; opacity: 0.5; }
+.tc-threads .t5 { left: 84%; animation-delay: 2.6s; }
+.tc-threads .t6 { left: 93%; animation-delay: 0.9s; opacity: 0.35; }
+
+@keyframes floatThread {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(18px); }
+}
+
+/* ============================
+   IMPORTANT LAYER FIX (DROPDOWN)
+   Navbar must be above glass cards
+============================ */
+
+/* Keep content above ambient */
+.tc-page, .footer-section {
+  position: relative;
+  z-index: 2;
+}
+
+/* Navbar ABOVE everything */
+.tc-navbar {
+  position: sticky; /* plays nicely with bootstrap sticky-top */
+  top: 0;
+  z-index: 11000 !important;
+}
+
+/* Dropdown ABOVE page cards */
+.tc-navbar .dropdown-menu {
+  z-index: 11050 !important;
+}
+
+.tc-page { min-height: 70vh; }
+
+/* Reveal */
+.tc-reveal {
+  opacity: 0;
+  transform: translateY(16px) scale(0.997);
+  filter: blur(6px);
+  transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+}
+.tc-reveal.is-inview {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* Glass card */
+.tc-glasscard {
+  background: var(--tc-card);
+  border: 1px solid var(--tc-border);
+  border-radius: 22px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--tc-shadow);
+  padding: 18px;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  position: relative;
+}
+.tc-glasscard::before {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.48), transparent 65%);
+  transform: translateX(-60%);
+  opacity: 0;
+  pointer-events: none;
+}
+.tc-glasscard:hover::before {
+  opacity: 0.55;
+  animation: tcShine 900ms ease;
+}
+@keyframes tcShine {
+  from { transform: translateX(-60%) rotate(12deg); }
+  to { transform: translateX(60%) rotate(12deg); }
+}
+
+.tc-hr {
+  border: 0;
+  height: 1px;
+  background: rgba(15,23,42,0.10);
+  margin: 14px 0;
+}
+
+/* Typography helpers */
+.tc-kicker {
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tc-muted);
+  font-size: 0.78rem;
+}
+.tc-h1 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+  letter-spacing: -0.02em;
+}
+.tc-h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.tc-muted { color: var(--tc-muted); }
+
+/* Buttons (match your home/about style) */
+.tc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 800;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  will-change: transform;
+}
+.tc-btn--compact { padding: 10px 14px; font-size: 0.92rem; }
+.tc-btn--primary {
+  background: var(--tc-primary);
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(217, 119, 6, 0.22);
+}
+.tc-btn--primary:hover { background: var(--tc-primary-dark); transform: translateY(-1px); }
+.tc-btn--ghost {
+  background: rgba(255,255,255,0.70);
+  border-color: rgba(15,23,42,0.12);
+  color: var(--tc-text);
+}
+.tc-btn--ghost:hover { transform: translateY(-1px); box-shadow: 0 18px 50px rgba(15,23,42,0.10); }
+
+/* Sidebar */
+.tc-sidebar {
+  position: sticky;
+  top: 92px;
+}
+.tc-usercard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tc-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
+  background: rgba(217,119,6,0.18);
+  border: 1px solid rgba(217,119,6,0.22);
+}
+.tc-usercard__hi {
+  font-weight: 900;
+  font-family: "Poppins", sans-serif;
+}
+.tc-usercard__meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.tc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.72rem;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.75);
+}
+.tc-badge--role { color: var(--tc-text); }
+.tc-badge--city { color: rgba(71,85,105,1); }
+
+.tc-sidenav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tc-sidenav__item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.70);
+  color: var(--tc-text);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.tc-sidenav__item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 45px rgba(15,23,42,0.10);
+}
+.tc-sidenav__item.is-active {
+  border-color: rgba(217,119,6,0.25);
+  background: linear-gradient(135deg, rgba(217,119,6,0.18), rgba(251,191,36,0.12));
+}
+.tc-sidenav__item--danger {
+  background: rgba(255,255,255,0.70);
+  border-color: rgba(239,68,68,0.22);
+  color: rgba(185,28,28,1);
+}
+.tc-sidenav__spacer { height: 10px; }
+
+/* Topbar */
+.tc-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+.tc-topbar__right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Search */
+.tc-search {
+  position: relative;
+  min-width: 260px;
+}
+.tc-search__icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(100,116,139,0.9);
+  font-weight: 900;
+}
+.tc-search__input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.75);
+  padding: 10px 12px 10px 34px;
+  outline: none;
+  font-weight: 700;
+}
+
+/* Tabs */
+.tc-tab { display: none; }
+.tc-tab.is-active { display: block; }
+
+.tc-cardhead {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Info grid */
+.tc-gridinfo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+}
+@media (max-width: 576px) { .tc-gridinfo { grid-template-columns: 1fr; } }
+
+.tc-field {
+  border: 1px solid rgba(15,23,42,0.08);
+  background: rgba(255,255,255,0.62);
+  border-radius: 16px;
+  padding: 12px;
+}
+.tc-field__label { font-size: 0.78rem; color: rgba(100,116,139,1); font-weight: 800; }
+.tc-field__value { font-weight: 900; color: rgba(15,23,42,0.92); margin-top: 2px; }
+
+/* Note */
+.tc-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(217,119,6,0.10);
+  border: 1px solid rgba(217,119,6,0.16);
+  font-weight: 800;
+  color: rgba(15,23,42,0.86);
+}
+.tc-note__dot {
+  width: 10px; height: 10px; border-radius: 999px;
+  background: rgba(217,119,6,0.95);
+  box-shadow: 0 0 0 10px rgba(217,119,6,0.10);
+}
+
+/* Fit pills preview */
+.tc-pillgrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tc-fitpill {
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.70);
+  border-radius: 999px;
+  padding: 10px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+}
+.tc-fitpill small { color: rgba(100,116,139,1); font-weight: 800; }
+
+/* Address mini */
+.tc-addressmini { display: grid; gap: 10px; }
+.tc-addressmini__item {
+  border: 1px solid rgba(15,23,42,0.08);
+  background: rgba(255,255,255,0.62);
+  border-radius: 16px;
+  padding: 12px;
+}
+.tc-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.72rem;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.78);
+  margin-bottom: 8px;
+}
+
+/* Orders preview */
+.tc-orders { display: grid; gap: 10px; }
+.tc-orderrow {
+  border: 1px solid rgba(15,23,42,0.08);
+  background: rgba(255,255,255,0.62);
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tc-orderrow__left strong { font-weight: 900; }
+.tc-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.74rem;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.75);
+}
+.tc-chip--req { background: rgba(56,189,248,0.14); }
+.tc-chip--stitch { background: rgba(245,158,11,0.16); }
+.tc-chip--ready { background: rgba(34,197,94,0.16); }
+.tc-chip--deliv { background: rgba(168,85,247,0.14); }
+
+.tc-linkbtn {
+  font-weight: 900;
+  text-decoration: none;
+  color: rgba(15,23,42,0.92);
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.75);
+  border-radius: 999px;
+  padding: 9px 12px;
+}
+.tc-linkbtn:hover { color: #fff; background: var(--tc-primary); border-color: var(--tc-primary); }
+
+/* Saved rail */
+.tc-savedrail {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.tc-savedrail::-webkit-scrollbar { height: 8px; }
+.tc-savedrail::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.14); border-radius: 999px; }
+.tc-savedmini {
+  min-width: 240px;
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.70);
+  padding: 12px;
+}
+.tc-savedmini__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tc-savedmini__name { font-weight: 900; }
+.tc-savedmini__meta { color: rgba(100,116,139,1); font-weight: 800; font-size: 0.86rem; }
+
+/* Fit vault grid */
+.tc-fitgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+}
+@media (max-width: 992px) { .tc-fitgrid { grid-template-columns: 1fr; } }
+
+.tc-fitcard {
+  border-radius: 20px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.70);
+  padding: 14px;
+}
+.tc-fitcard__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: start;
+}
+.tc-fitcard__title { font-weight: 900; margin: 0; }
+.tc-fitcard__sub { color: rgba(100,116,139,1); font-weight: 800; font-size: 0.86rem; margin-top: 3px; }
+.tc-fitcard__tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.tc-fitcard__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* Address grid */
+.tc-addressgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+}
+@media (max-width: 992px) { .tc-addressgrid { grid-template-columns: 1fr; } }
+
+.tc-addresscard {
+  border-radius: 20px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.70);
+  padding: 14px;
+}
+.tc-addresscard__line { color: rgba(71,85,105,0.95); font-weight: 800; }
+
+/* Orders list */
+.tc-orderlist { display: grid; gap: 12px; }
+
+/* Saved grid */
+.tc-savedgrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+}
+@media (max-width: 1200px) { .tc-savedgrid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 768px)  { .tc-savedgrid { grid-template-columns: 1fr; } }
+
+.tc-savedcard {
+  border-radius: 20px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.70);
+  padding: 14px;
+}
+
+/* Settings */
+.tc-settings { display: grid; gap: 12px; }
+.tc-setting {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(255,255,255,0.65);
+  font-weight: 800;
+}
+.tc-setting input { margin-top: 4px; }
+.tc-dangerbox {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(239,68,68,0.20);
+  background: rgba(239,68,68,0.08);
+}
+
+/* Mobile spacing */
+@media (max-width: 992px) {
+  .tc-sidebar { position: static; top: auto; }
+  .tc-topbar { align-items: start; }
+  .tc-search { min-width: 220px; }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .tc-threads .thread { animation: none !important; }
+  .tc-reveal { transition: none !important; }
+  .tc-glasscard::before { display: none !important; }
+}

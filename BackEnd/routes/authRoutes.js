@@ -1,14 +1,13 @@
-// BackEnd/routes/authRoutes.js
-
 const express = require("express");
 const router = express.Router();
 
-const { signup, login } = require("../controllers/authController");
+const authController = require("../controllers/authController");
 
-// POST /api/auth/signup
-router.post("/signup", signup);
+router.post("/signup", authController.signup);
+router.post("/login", authController.login);
 
-// POST /api/auth/login
-router.post("/login", login);
+// ✅ Addresses endpoints (profile page)
+router.get("/addresses", authController.getAddresses);
+router.put("/addresses", authController.putAddresses);
 
 module.exports = router;

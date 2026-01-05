@@ -1,188 +1,105 @@
-// BackEnd/controllers/tailorController.js
+const store = require("../models/dataStore");
 
-const { tailors, nextIds } = require("../models/dataStore");
-
-/**
- * GET /api/tailors
- * Optional query params:
- *  - city        (exact match, case-insensitive)
- *  - q           (free text: name, city, area, specializations)
- *  - spec        (match specialization text, e.g. "Lehenga")
- *  - minPrice    (numeric)
- *  - maxPrice    (numeric)
- */
-const getAllTailors = (req, res) => {
-  const { city, q, spec, minPrice, maxPrice } = req.query;
-
-  let result = [...tailors];
-
-  // Filter by city (if provided)
-  if (city && city.trim() !== "") {
-    const cityLower = city.trim().toLowerCase();
-    result = result.filter(
-      (t) => t.city && t.city.toLowerCase() === cityLower
-    );
-  }
-
-  // Filter by specialization text (if provided)
-  if (spec && spec.trim() !== "") {
-    const specLower = spec.trim().toLowerCase();
-    result = result.filter(
-      (t) =>
-        Array.isArray(t.specializations) &&
-        t.specializations.some((s) =>
-          s.toLowerCase().includes(specLower)
-        )
-    );
-  }
-
-  // Free text search (name, city, area, specializations)
-  if (q && q.trim() !== "") {
-    const qLower = q.trim().toLowerCase();
-    result = result.filter((t) => {
-      const inName = t.name && t.name.toLowerCase().includes(qLower);
-      const inCity = t.city && t.city.toLowerCase().includes(qLower);
-      const inArea =
-        t.area && t.area.toLowerCase().includes(qLower);
-      const inSpecs =
-        Array.isArray(t.specializations) &&
-        t.specializations.some((s) =>
-          s.toLowerCase().includes(qLower)
-        );
-
-      return inName || inCity || inArea || inSpecs;
-    });
-  }
-
-  // Price range
-  if (minPrice) {
-    const min = Number(minPrice);
-    if (!Number.isNaN(min)) {
-      result = result.filter(
-        (t) => Number(t.startingPrice) >= min
-      );
+function parseJsonMaybe(value, fallback) {
+  if (value == null) return fallback;
+  if (Array.isArray(value)) return value;
+  if (typeof value === "object") return value;
+  if (typeof value === "string") {
+    const s = value.trim();
+    if (!s) return fallback;
+    try {
+      return JSON.parse(s);
+    } catch {
+      return fallback;
     }
   }
+  return fallback;
+}
 
-  if (maxPrice) {
-    const max = Number(maxPrice);
-    if (!Number.isNaN(max)) {
-      result = result.filter(
-        (t) => Number(t.startingPrice) <= max
-      );
-    }
-  }
-
-  res.json(result);
+exports.getAllTailors = (req, res) => {
+  res.json(store.tailors);
 };
 
-// GET /api/tailors/:id  → single tailor
-const getTailorById = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const tailor = tailors.find((t) => t.id === id);
-
-  if (!tailor) {
-    return res.status(404).json({ error: "Tailor not found" });
-  }
-
-  res.json(tailor);
+exports.getTailorById = (req, res) => {
+  const id = Number(req.params.id);
+  const t = store.tailors.find((t) => t.id === id);
+  if (!t) return res.status(404).json({ error: "Tailor not found" });
+  res.json(t);
 };
 
-// POST /api/tailors  → create tailor profile (from Join as Tailor form)
-const createTailorProfile = (req, res) => {
-  const {
-    userId,          // optional for now, later link to Users
-    name,
-    city,
-    area,
-    experienceYears,
-    startingPrice,
-    specializations, // array or JSON string
-    about,
-    gender,          // "male" / "female" (optional)
-    services         // array or JSON string
-  } = req.body;
+// ✅ NEW: used by tailorDashboard.js
+exports.getTailorByUserId = (req, res) => {
+  const userId = String(req.params.userId);
+  const t = store.tailors.find((t) => String(t.userId) === userId);
+  if (!t) return res.status(404).json({ error: "Tailor not found" });
+  res.json(t);
+};
 
-  if (!name || !city || !experienceYears || !startingPrice) {
-    return res
-      .status(400)
-      .json({ error: "name, city, experienceYears, startingPrice are required" });
-  }
+exports.createTailorProfile = (req, res) => {
+  const id = store.nextIds.getNextTailorId();
+  const body = req.body;
 
-  // If specializations/services come as JSON string (common with FormData)
-  let parsedSpecs = [];
-  if (typeof specializations === "string") {
-    try {
-      parsedSpecs = JSON.parse(specializations);
-    } catch {
-      parsedSpecs = [];
-    }
-  } else if (Array.isArray(specializations)) {
-    parsedSpecs = specializations;
-  }
+  // FormData sends strings → specializations/services are often JSON strings
+  const specializations = parseJsonMaybe(body.specializations, []);
+  const services = parseJsonMaybe(body.services, []);
 
-  let parsedServices = [];
-  if (typeof services === "string") {
-    try {
-      parsedServices = JSON.parse(services);
-    } catch {
-      parsedServices = [];
-    }
-  } else if (Array.isArray(services)) {
-    parsedServices = services;
-  }
+  const tailor = {
+    id,
 
-  // If using multer, profile image url may be on req.file
-  let profileImageUrl = "";
-  if (req.file && req.file.filename) {
-    // path relative to a "public/uploads" folder for example
-    profileImageUrl = `/uploads/${req.file.filename}`;
-  }
+    // ✅ CRITICAL: link auth user → tailor profile
+    userId: body.userId != null ? String(body.userId) : null,
 
-  const newTailor = {
-    id: nextIds.getNextTailorId(),
-    userId: userId || null,
-    name,
-    city,
-    area: area || "",
-    experienceYears: Number(experienceYears),
-    startingPrice: Number(startingPrice),
-    specializations: parsedSpecs,
-    about: about || "",
-    rating: 0,
-    gender: gender || "male",
-    profileImageUrl,
-    services: parsedServices
+    name: body.name || "Tailor",
+    email: body.email || "",
+    city: body.city || "",
+    area: body.area || "",
+
+    experienceYears: Number(body.experienceYears) || 0,
+    startingPrice: Number(body.startingPrice) || 0,
+    gender: body.gender || "",
+
+    rating: 4.5,
+    specializations: Array.isArray(specializations) ? specializations : [],
+    about: body.about || "",
+
+    // ✅ store real services
+    services: Array.isArray(services) ? services : [],
+
+    profileImageUrl: req.file ? `/uploads/${req.file.filename}` : "",
   };
 
-  tailors.push(newTailor);
-
-  res.status(201).json({
-    message: "Tailor profile created successfully",
-    tailor: newTailor
-  });
+  store.tailors.push(tailor);
+  res.status(201).json(tailor);
 };
 
-// DELETE /api/tailors/:id
-const deleteTailor = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const index = tailors.findIndex((t) => t.id === id);
+exports.updateTailorProfile = (req, res) => {
+  const id = Number(req.params.id);
+  const idx = store.tailors.findIndex((t) => t.id === id);
+  if (idx === -1) return res.status(404).json({ error: "Not found" });
 
-  if (index === -1) {
-    return res.status(404).json({ error: "Tailor not found" });
+  // Keep existing arrays unless overwritten; parse if JSON string comes in
+  const next = { ...req.body };
+
+  if (typeof next.specializations === "string") {
+    const parsed = parseJsonMaybe(next.specializations, store.tailors[idx].specializations || []);
+    next.specializations = Array.isArray(parsed) ? parsed : store.tailors[idx].specializations || [];
+  }
+  if (typeof next.services === "string") {
+    const parsed = parseJsonMaybe(next.services, store.tailors[idx].services || []);
+    next.services = Array.isArray(parsed) ? parsed : store.tailors[idx].services || [];
   }
 
-  const deleted = tailors.splice(index, 1)[0];
+  store.tailors[idx] = {
+    ...store.tailors[idx],
+    ...next,
+    profileImageUrl: req.file ? `/uploads/${req.file.filename}` : store.tailors[idx].profileImageUrl,
+  };
 
-  res.json({
-    message: "Tailor deleted successfully",
-    tailor: deleted
-  });
+  res.json(store.tailors[idx]);
 };
 
-module.exports = {
-  getAllTailors,
-  getTailorById,
-  createTailorProfile,
-  deleteTailor
+exports.deleteTailor = (req, res) => {
+  const id = Number(req.params.id);
+  store.tailors = store.tailors.filter((t) => t.id !== id);
+  res.json({ ok: true });
 };

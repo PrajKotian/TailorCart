@@ -50,11 +50,12 @@ a:hover {
 }
 
 /* ------------------------------
-   NAVBAR
+   NAVBAR (Tailor Cart - Pro)
 ------------------------------ */
 
-.navbar {
-  font-size: 0.95rem;
+.tc-navbar {
+  position: relative;
+  z-index: 1050;
 }
 
 .brand-logo {
@@ -63,8 +64,9 @@ a:hover {
   letter-spacing: 0.05em;
 }
 
+/* Links */
 .navbar-nav .nav-link {
-  font-weight: 500;
+  font-weight: 600;
   padding-inline: 1rem;
   color: #4b5563;
 }
@@ -74,19 +76,210 @@ a:hover {
   color: var(--tc-primary);
 }
 
-/* Right side buttons */
-.btn-join-tailor {
-  background-color: var(--tc-primary);
-  border-color: var(--tc-primary);
-  color: #fff;
-  font-weight: 500;
-  border-radius: 999px;
-  padding-inline: 1.4rem;
+/* Make Sign In look clean */
+.nav-link-btn {
+  font-weight: 700;
+  color: #2563eb;
+  padding: 0.5rem 0.25rem;
 }
 
-.btn-join-tailor:hover {
-  background-color: var(--tc-primary-dark);
-  border-color: var(--tc-primary-dark);
+.nav-link-btn:hover {
+  color: var(--tc-primary);
+}
+
+/* Primary button theme */
+.btn-join-tailor {
+  border-radius: 999px;
+  padding: 0.55rem 1.05rem;
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(217, 119, 6, 0.18);
+}
+
+/* Logged-in layout: keep dropdown + button in a row */
+.nav-auth-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+/* User dropdown pill button */
+.nav-user-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  font-weight: 800;
+  color: #111827;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.nav-user-btn:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+/* Pill internal alignment */
+.nav-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.nav-user-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tc-primary);
+  display: inline-block;
+  box-shadow: 0 0 0 10px rgba(217, 119, 6, 0.10);
+}
+
+.nav-user-text {
+  color: #111827;
+  font-size: 0.92rem;
+}
+
+/* New Order button polish */
+.nav-neworder-btn {
+  padding-inline: 18px;
+}
+
+/* ===================================
+   PRO DROPDOWN (Account Panel)
+=================================== */
+
+/* Ensure dropdown appears above everything */
+.dropdown-menu {
+  z-index: 1060;
+}
+
+/* Dropdown entrance */
+.dropdown-menu.tc-dd {
+  transform-origin: top right;
+  animation: tcDropIn 140ms ease-out;
+}
+
+@keyframes tcDropIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Premium dropdown container */
+.tc-dd {
+  width: 290px;
+  padding: 0.65rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+}
+
+/* Header block inside dropdown */
+.tc-dd__head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 10px 12px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(217, 119, 6, 0.16), transparent 55%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.04), rgba(15, 23, 42, 0.00));
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.tc-dd__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #0f172a;
+  background: rgba(217, 119, 6, 0.16);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+
+.tc-dd__name {
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.tc-dd__meta {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: rgba(100, 116, 139, 0.95);
+  font-weight: 800;
+}
+
+/* Section label */
+.tc-dd__label {
+  padding: 10px 10px 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(100, 116, 139, 0.9);
+  font-weight: 900;
+}
+
+/* Items with icon chips */
+.tc-dd .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 14px;
+  padding: 0.7rem 0.75rem;
+  font-weight: 900;
+  color: #0f172a;
+  transition: transform .16s ease, background .16s ease;
+}
+
+.tc-dd .dropdown-item .tc-dd__ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 16px;
+}
+
+.tc-dd .dropdown-item:hover {
+  background: rgba(217, 119, 6, 0.12);
+  transform: translateY(-1px);
+}
+
+.tc-dd .dropdown-item.text-danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* Divider */
+.tc-dd .dropdown-divider {
+  margin: 0.6rem 0.25rem;
+  opacity: 0.12;
+}
+
+/* Mobile: stack nicely */
+@media (max-width: 991.98px) {
+  .nav-auth-wrap {
+    width: 100%;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .nav-neworder-btn {
+    width: auto;
+  }
+
+  .tc-dd {
+    width: 100%;
+    min-width: 240px;
+  }
 }
 
 /* ------------------------------

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tailor Cart | My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../styles/style.css" />
+
+    <!-- Profile CSS -->
+    <link rel="stylesheet" href="../styles/profile.css" />
+  </head>
+
+  <body class="tc-profile">
+    <!-- Progress -->
+    <div class="tc-progress">
+      <div class="tc-progress__bar" id="tcProgressBar"></div>
+    </div>
+
+    <!-- Ambient layers -->
+    <div class="tc-ambient" aria-hidden="true">
+      <div class="tc-grain"></div>
+      <div class="tc-spotlight" id="tcSpotlight"></div>
+      <div class="tc-threads">
+        <span class="thread t1"></span>
+        <span class="thread t2"></span>
+        <span class="thread t3"></span>
+        <span class="thread t4"></span>
+        <span class="thread t5"></span>
+        <span class="thread t6"></span>
+      </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar"
+    >
+      <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold brand-logo" href="index.html"
+          >Tailor Cart</a
+        >
+
+        <!-- Mobile toggle -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <!-- Nav links -->
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html#categories">Categories</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="tailors.html">Find Tailors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html#how-it-works"
+                >How It Works</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">About Us</a>
+            </li>
+          </ul>
+
+          <!-- RIGHT SIDE: GUEST -->
+          <div class="d-flex gap-2 align-items-center" id="navGuest">
+            <a
+              href="login.html"
+              class="btn btn-link text-decoration-none nav-link-btn"
+              >Sign In</a
+            >
+            <a
+              href="signup-tailor.html"
+              class="btn btn-primary btn-join-tailor tc-magnetic"
+              >Join as Tailor</a
+            >
+          </div>
+
+          <!-- RIGHT SIDE: AUTH -->
+          <div class="d-none" id="navAuth">
+            <div class="nav-auth-wrap">
+              <!-- User pill dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn nav-user-btn dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span class="nav-user-pill">
+                    <span class="nav-user-dot"></span>
+                    <span class="nav-user-text"
+                      >Hi, <span id="navUserName">User</span></span
+                    >
+                  </span>
+                </button>
+
+                <!-- Upgraded dropdown -->
+                <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                  <!-- Header -->
+                  <li>
+                    <div class="tc-dd__head">
+                      <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                      <div>
+                        <p class="tc-dd__name mb-0" id="navUserNameMenu">
+                          User
+                        </p>
+                        <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                      </div>
+                    </div>
+                  </li>
+
+                  <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                  <li>
+                    <a class="dropdown-item" href="profile.html">
+                      <span class="tc-dd__ico">👤</span>
+                      <span>My Profile</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="customer-dashboard.html">
+                      <span class="tc-dd__ico">🧾</span>
+                      <span>My Orders</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailors.html">
+                      <span class="tc-dd__ico">✂️</span>
+                      <span>Find Tailors</span>
+                    </a>
+                  </li>
+
+                  <li><hr class="dropdown-divider" /></li>
+
+                  <li>
+                    <button
+                      class="dropdown-item text-danger"
+                      id="navLogoutBtn"
+                      type="button"
+                    >
+                      <span class="tc-dd__ico">⎋</span>
+                      <span>Logout</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Separate button -->
+              <a
+                href="tailors.html"
+                class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic"
+                >+ New Order</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PAGE -->
+    <main class="tc-page">
+      <div class="container py-4 py-lg-5">
+        <div class="row g-4">
+          <!-- SIDEBAR -->
+          <aside class="col-lg-3">
+            <div class="tc-sidebar tc-glasscard tc-reveal">
+              <div class="tc-usercard">
+                <div class="tc-avatar" id="tcAvatar">U</div>
+                <div>
+                  <div class="tc-usercard__hi">
+                    Hi, <span id="tcUserName">User</span>
+                  </div>
+                  <div class="tc-usercard__meta">
+                    <span class="tc-badge tc-badge--role" id="tcUserRole"
+                      >Customer</span
+                    >
+                    <span class="tc-badge tc-badge--city" id="tcUserCity"
+                      >City</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <hr class="tc-hr" />
+
+              <nav class="tc-sidenav" aria-label="Profile sections">
+                <button
+                  class="tc-sidenav__item is-active"
+                  type="button"
+                  data-target="#tabOverview"
+                >
+                  <span class="tc-ico">👤</span> Profile Overview
+                </button>
+
+                <button
+                  class="tc-sidenav__item"
+                  type="button"
+                  data-target="#tabAddresses"
+                >
+                  <span class="tc-ico">📍</span> Addresses
+                </button>
+
+                <button
+                  class="tc-sidenav__item"
+                  type="button"
+                  data-target="#tabOrders"
+                >
+                  <span class="tc-ico">🧾</span> My Orders
+                </button>
+
+                <div class="tc-sidenav__spacer"></div>
+
+                <button
+                  class="tc-sidenav__item tc-sidenav__item--danger"
+                  type="button"
+                  id="tcLogoutBtn"
+                >
+                  <span class="tc-ico">⎋</span> Logout
+                </button>
+              </nav>
+            </div>
+
+            <!-- Mobile quick actions -->
+            <div class="d-lg-none tc-glasscard tc-reveal mt-3">
+              <div class="tc-topactions">
+                <a class="tc-btn tc-btn--primary w-100" href="tailors.html"
+                  >+ New Order</a
+                >
+                <a class="tc-btn tc-btn--ghost w-100" href="tailors.html"
+                  >Explore Tailors</a
+                >
+              </div>
+            </div>
+          </aside>
+
+          <!-- MAIN CONTENT -->
+          <section class="col-lg-9">
+            <!-- Top bar -->
+            <div class="tc-topbar tc-glasscard tc-reveal">
+              <div class="tc-topbar__left">
+                <div class="tc-kicker mb-1">Account</div>
+                <h1 class="tc-h1 mb-0">My Profile</h1>
+              </div>
+
+              <div class="tc-topbar__right">
+                <div class="tc-search">
+                  <span class="tc-search__icon">⌕</span>
+                  <input
+                    type="text"
+                    class="tc-search__input"
+                    placeholder="Search orders..."
+                    id="tcSearchInput"
+                  />
+                </div>
+
+                
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tc-tabwrap mt-4">
+              <!-- OVERVIEW -->
+              <div class="tc-tab is-active" id="tabOverview">
+                <div class="row g-3">
+                  <!-- Profile card -->
+                  <div class="col-12">
+                    <div class="tc-glasscard tc-reveal">
+                      <div class="tc-cardhead">
+                        <div>
+                          <h3 class="tc-h3 mb-1">Profile</h3>
+                          <p class="tc-muted mb-0">
+                            Your details help tailors confirm delivery and
+                            updates.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="tc-gridinfo mt-3">
+                        <div class="tc-field">
+                          <div class="tc-field__label">Full Name</div>
+                          <div class="tc-field__value" id="valName">—</div>
+                        </div>
+                        <div class="tc-field">
+                          <div class="tc-field__label">Phone</div>
+                          <div class="tc-field__value" id="valPhone">—</div>
+                        </div>
+                        <div class="tc-field">
+                          <div class="tc-field__label">Email</div>
+                          <div class="tc-field__value" id="valEmail">—</div>
+                        </div>
+                        <div class="tc-field">
+                          <div class="tc-field__label">City</div>
+                          <div class="tc-field__value" id="valCity">—</div>
+                        </div>
+                      </div>
+
+                      <div class="tc-note mt-3">
+                        <span class="tc-note__dot"></span>
+                        <span
+                          >Tip: Keep your city updated to get better “near me”
+                          results.</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Addresses summary -->
+                  <div class="col-12 col-xl-5">
+                    <div class="tc-glasscard tc-reveal h-100">
+                      <div class="tc-cardhead">
+                        <div>
+                          <h3 class="tc-h3 mb-1">Addresses</h3>
+                          <p class="tc-muted mb-0">Saved delivery locations.</p>
+                        </div>
+                        <button
+                          class="tc-btn tc-btn--ghost tc-btn--compact"
+                          type="button"
+                          data-jump="#tabAddresses"
+                        >
+                          View
+                        </button>
+                      </div>
+
+                      <div
+                        class="tc-addressmini mt-3"
+                        id="addressPreview"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <!-- Recent orders -->
+                  <div class="col-12 col-xl-7">
+                    <div class="tc-glasscard tc-reveal h-100">
+                      <div class="tc-cardhead">
+                        <div>
+                          <h3 class="tc-h3 mb-1">Recent Orders</h3>
+                          <p class="tc-muted mb-0">Your latest orders.</p>
+                        </div>
+                        <button
+                          class="tc-btn tc-btn--ghost tc-btn--compact"
+                          type="button"
+                          data-jump="#tabOrders"
+                        >
+                          See all
+                        </button>
+                      </div>
+
+                      <div class="tc-orders mt-3" id="ordersPreview"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ADDRESSES (✅ fixed id to match sidebar: #tabAddresses) -->
+              <section class="tc-tab" id="tabAddresses">
+                <div class="tc-tab__head">
+                  <h3 class="tc-tab__title">Saved Addresses</h3>
+                  <p class="tc-muted mb-0">
+                    Add delivery addresses for faster order placement.
+                  </p>
+                </div>
+
+                <!-- Add Address Card -->
+                <div class="tc-card mt-3">
+                  <div
+                    class="tc-card__head d-flex align-items-center justify-content-between"
+                  >
+                    <div>
+                      <h5 class="mb-0">Add New Address</h5>
+                      <div class="tc-muted small">
+                        Use accurate delivery details for a smooth experience.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tc-card__body">
+                    <form id="tcAddressForm" class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">Label</label>
+                        <select class="form-select" id="addrLabel" required>
+                          <option value="Home">Home</option>
+                          <option value="Work">Work</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-8">
+                        <label class="form-label">Full Name (Receiver)</label>
+                        <input
+                          class="form-control"
+                          id="addrName"
+                          placeholder="User Name"
+                          required
+                        />
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label">Phone</label>
+                        <input
+                          class="form-control"
+                          id="addrPhone"
+                          placeholder="e.g., 9819######"
+                          required
+                        />
+                      </div>
+
+                      <div class="col-md-6">
+                        <label class="form-label">Email (Optional)</label>
+                        <input
+                          class="form-control"
+                          id="addrEmail"
+                          placeholder="e.g., @email.com"
+                        />
+                      </div>
+
+                      <div class="col-12">
+                        <label class="form-label">Address Line 1</label>
+                        <input
+                          class="form-control"
+                          id="addrLine1"
+                          placeholder="House/Flat No., Building, Street"
+                          required
+                        />
+                      </div>
+
+                      <div class="col-12">
+                        <label class="form-label"
+                          >Address Line 2 (Optional)</label
+                        >
+                        <input
+                          class="form-control"
+                          id="addrLine2"
+                          placeholder="Landmark / Area"
+                        />
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label">City</label>
+                        <input
+                          class="form-control"
+                          id="addrCity"
+                          placeholder="e.g., Mumbai"
+                          required
+                        />
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label">State</label>
+                        <input
+                          class="form-control"
+                          id="addrState"
+                          placeholder="e.g., Maharashtra"
+                          required
+                        />
+                      </div>
+
+                      <div class="col-md-4">
+                        <label class="form-label">PIN Code</label>
+                        <input
+                          class="form-control"
+                          id="addrPincode"
+                          placeholder="e.g., 400053"
+                          required
+                        />
+                      </div>
+
+                      <div class="col-12">
+                        <label class="form-label"
+                          >Delivery Instructions (Optional)</label
+                        >
+                        <textarea
+                          class="form-control"
+                          id="addrNotes"
+                          rows="2"
+                          placeholder="e.g., Call before delivery"
+                        ></textarea>
+                      </div>
+
+                      <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                          Save Address
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          id="addrClearBtn"
+                        >
+                          Clear
+                        </button>
+                        <div class="ms-auto small" id="addrMsg"></div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <!-- Address List -->
+                <div class="tc-card mt-3">
+                  <div class="tc-card__head">
+                    <h5 class="mb-0">Your Addresses</h5>
+                    <div class="tc-muted small">
+                      Manage & delete saved addresses.
+                    </div>
+                  </div>
+                  <div class="tc-card__body" id="addressList">
+                    <div class="tc-muted">Loading…</div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- ORDERS -->
+              <div class="tc-tab" id="tabOrders">
+                <div class="tc-glasscard tc-reveal">
+                  <div class="tc-cardhead">
+                    <div>
+                      <h3 class="tc-h3 mb-1">My Orders</h3>
+                      <p class="tc-muted mb-0">
+                        Track your orders, accept quotes, and manage requests.
+                      </p>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                      <a
+                        class="tc-btn tc-btn--ghost tc-btn--compact"
+                        href="customer-dashboard.html"
+                        >Open Full Dashboard</a
+                      >
+                      <a
+                        class="tc-btn tc-btn--primary tc-btn--compact"
+                        href="tailors.html"
+                        >+ New Order</a
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Summary -->
+                  <div class="row g-3 mt-2" id="poSummaryRow"></div>
+
+                  <!-- Filter + Table -->
+                  <div
+                    class="d-flex justify-content-between align-items-center gap-2 mt-3 flex-wrap"
+                  >
+                    <div class="tc-muted small" id="poOrdersMeta">—</div>
+
+                    <select
+                      class="form-select form-select-sm"
+                      style="max-width: 220px"
+                      id="poStatusFilter"
+                    >
+                      <option value="ALL">All Status</option>
+                      <option value="REQUESTED">Requested</option>
+                      <option value="QUOTED">Quoted</option>
+                      <option value="ACCEPTED">Accepted</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="READY">Ready</option>
+                      <option value="DELIVERED">Delivered</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+                  </div>
+
+                  <div class="mt-3" id="poOrdersEmpty" style="display: none">
+                    <div class="tc-muted">No orders yet.</div>
+                    <a
+                      href="tailors.html"
+                      class="tc-btn tc-btn--primary tc-btn--compact mt-2"
+                      >Find Tailors</a
+                    >
+                  </div>
+
+                  <div
+                    class="table-responsive mt-2"
+                    id="poOrdersTableWrap"
+                    style="display: none"
+                  >
+                    <table class="table align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th>Order</th>
+                          <th>Tailor</th>
+                          <th>Garment</th>
+                          <th>Status</th>
+                          <th>Quote</th>
+                          <th>Created</th>
+                          <th class="text-end">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="poOrdersTbody"></tbody>
+                    </table>
+                  </div>
+
+                  <div class="small mt-2" id="poMsg"></div>
+                </div>
+              </div>
+
+              <!-- /tabs -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer-section pt-5 pb-4">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <h4 class="brand-logo mb-3">Tailor Cart</h4>
+            <p class="small mb-3">
+              Connecting customers with skilled local tailors across India for
+              custom-made clothing. Experience the perfect blend of traditional
+              craftsmanship and modern convenience.
+            </p>
+            <div class="d-flex gap-3">
+              <a href="#" class="social-icon">📘</a>
+              <a href="#" class="social-icon">📸</a>
+              <a href="#" class="social-icon">🐦</a>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <h6 class="text-white mb-3">For Customers</h6>
+            <ul class="list-unstyled small footer-links">
+              <li><a href="index.html#categories">Browse Categories</a></li>
+              <li><a href="tailors.html">Find Tailors</a></li>
+              <li><a href="customer-dashboard.html">My Orders</a></li>
+              <li><a href="#">Help Center</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-4">
+            <h6 class="text-white mb-3">For Tailors</h6>
+            <ul class="list-unstyled small footer-links">
+              <li><a href="signup-tailor.html">Join as Tailor</a></li>
+              <li><a href="#">Tailor Dashboard</a></li>
+              <li><a href="#">Resources</a></li>
+              <li><a href="#">Support</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <hr class="border-secondary my-4" />
+
+        <div
+          class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-muted"
+        >
+          <p class="mb-2 mb-md-0">© 2024 Tailor Cart. All rights reserved.</p>
+          <div class="d-flex gap-3">
+            <a href="#" class="footer-links">Privacy Policy</a>
+            <a href="#" class="footer-links">Terms of Service</a>
+            <a href="#" class="footer-links">Contact Us</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../scripts/navbar-auth.js"></script>
+    <script src="../scripts/authStore.js"></script>
+    <script src="../scripts/profile.js"></script>
+  </body>
+</html>

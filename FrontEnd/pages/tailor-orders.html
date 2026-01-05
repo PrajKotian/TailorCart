@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tailor Cart | Tailor Orders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../styles/style.css" />
+
+    <!-- ✅ Guard must run before anything else -->
+    <script src="../scripts/guards/tailor-guard.js"></script>
+  </head>
+
+  <body>
+    <!-- NAVBAR (same shared navbar) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar">
+      <div class="container">
+        <a class="navbar-brand fw-bold brand-logo" href="index.html">Tailor Cart</a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html#categories">Categories</a></li>
+            <li class="nav-item"><a class="nav-link" href="tailors.html">Find Tailors</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html#how-it-works">How It Works</a></li>
+            <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+          </ul>
+
+          <!-- GUEST -->
+          <div class="d-flex gap-2 align-items-center" id="navGuest">
+            <a href="login.html" class="btn btn-link text-decoration-none nav-link-btn">Sign In</a>
+            <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor tc-magnetic">Join as Tailor</a>
+          </div>
+
+          <!-- AUTH -->
+          <div class="d-none" id="navAuth">
+            <div class="nav-auth-wrap">
+              <div class="dropdown">
+                <button
+                  class="btn nav-user-btn dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span class="nav-user-pill">
+                    <span class="nav-user-dot"></span>
+                    <span class="nav-user-text">Hi, <span id="navUserName">User</span></span>
+                  </span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                  <li>
+                    <div class="tc-dd__head">
+                      <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                      <div>
+                        <p class="tc-dd__name mb-0" id="navUserNameMenu">User</p>
+                        <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                      </div>
+                    </div>
+                  </li>
+
+                  <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailor-dashboard.html">
+                      <span class="tc-dd__ico">👤</span><span>My Profile</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailor-orders.html">
+                      <span class="tc-dd__ico">📦</span><span>My Orders</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailors.html">
+                      <span class="tc-dd__ico">✂️</span><span>Find Tailors</span>
+                    </a>
+                  </li>
+
+                  <li><hr class="dropdown-divider" /></li>
+
+                  <li>
+                    <button class="dropdown-item text-danger" id="navLogoutBtn" type="button">
+                      <span class="tc-dd__ico">⎋</span><span>Logout</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Tailor CTA -->
+              <a href="tailor-orders.html" class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic">
+                View Requests
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HEADER -->
+    <section class="py-4 bg-light">
+      <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+          <div>
+            <h2 class="mb-1">Tailor Orders</h2>
+            <p class="text-muted mb-0">
+              Review requests, send quotes, and update stitching status.
+            </p>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap">
+            <select class="form-select form-select-sm" style="max-width: 220px" id="toStatusFilter">
+              <option value="ALL">All Status</option>
+              <option value="REQUESTED">Requested</option>
+              <option value="QUOTED">Quoted</option>
+              <option value="ACCEPTED">Accepted</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="READY">Ready</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              style="max-width: 260px"
+              id="toSearch"
+              placeholder="Search by order / customer / garment..."
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="py-4">
+      <div class="container">
+        <div class="row g-3" id="toSummaryRow"></div>
+      </div>
+    </section>
+
+    <!-- TABLE -->
+    <section class="pb-5">
+      <div class="container">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div id="toEmpty" class="text-center py-5 d-none">
+              <p class="mb-2 fw-semibold">No orders yet.</p>
+              <p class="text-muted mb-0">When customers request orders, they will appear here.</p>
+            </div>
+
+            <div class="table-responsive d-none" id="toTableWrap">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Garment</th>
+                    <th>Status</th>
+                    <th>Quote</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="toTbody"></tbody>
+              </table>
+            </div>
+
+            <div class="small mt-2" id="toMsg"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL -->
+    <div class="modal fade" id="toModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Order Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="toModalBody">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared -->
+    <script src="../scripts/navbar-auth.js"></script>
+    <script src="../scripts/authStore.js"></script>
+    <script src="../scripts/ordersStore.js"></script>
+
+    <!-- Tailor Orders logic -->
+    <script src="../scripts/tailor-orders.js"></script>
+  </body>
+</html>

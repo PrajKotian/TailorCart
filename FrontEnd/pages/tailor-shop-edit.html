@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tailor Cart | Edit Shop Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Global CSS (your theme) -->
+    <link rel="stylesheet" href="../styles/style.css" />
+  </head>
+
+  <body class="bg-light">
+    <!-- NAVBAR (same auth structure as index / dashboard style) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar">
+      <div class="container">
+        <a class="navbar-brand fw-bold brand-logo" href="index.html">Tailor Cart</a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNavbar"
+          aria-controls="mainNavbar"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="tailor-dashboard.html">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="tailor-orders.html">Orders</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="tailor-shop-edit.html">Edit Shop Profile</a>
+            </li>
+          </ul>
+
+          <!-- RIGHT: GUEST -->
+          <div class="d-flex gap-2 align-items-center" id="navGuest">
+            <a href="login.html" class="btn btn-link text-decoration-none nav-link-btn">Sign In</a>
+            <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor">Join as Tailor</a>
+          </div>
+
+          <!-- RIGHT: AUTH -->
+          <div class="d-none" id="navAuth">
+            <div class="nav-auth-wrap">
+              <div class="dropdown">
+                <button
+                  class="btn nav-user-btn dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span class="nav-user-pill">
+                    <span class="nav-user-dot"></span>
+                    <span class="nav-user-text">
+                      Hi, <span id="navUserName">User</span>
+                    </span>
+                  </span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                  <li>
+                    <div class="tc-dd__head">
+                      <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                      <div>
+                        <p class="tc-dd__name mb-0" id="navUserNameMenu">User</p>
+                        <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                      </div>
+                    </div>
+                  </li>
+
+                  <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailor-dashboard.html">
+                      <span class="tc-dd__ico">🧵</span><span>My Profile</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailor-orders.html">
+                      <span class="tc-dd__ico">🧾</span><span>My Orders</span>
+                    </a>
+                  </li>
+
+                  <li><hr class="dropdown-divider" /></li>
+
+                  <li>
+                    <button class="dropdown-item text-danger" id="navLogoutBtn" type="button">
+                      <span class="tc-dd__ico">⎋</span><span>Logout</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <a href="tailor-orders.html" class="btn btn-primary btn-join-tailor nav-neworder-btn">
+                View Requests
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PAGE -->
+    <main class="py-4 py-md-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10 col-xl-9">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-4 p-md-5">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+                  <div>
+                    <h2 class="mb-1 fw-bold" style="font-family: Poppins, sans-serif">
+                      Edit Shop Profile
+                    </h2>
+                    <p class="text-muted mb-0">
+                      Keep your shop details updated — customers trust complete profiles.
+                    </p>
+                  </div>
+
+                  <a href="tailor-dashboard.html" class="btn btn-outline-secondary">
+                    ← Back to Dashboard
+                  </a>
+                </div>
+
+                <div id="shopEditMsg" class="small mb-3"></div>
+
+                <form id="shopEditForm" class="row g-3" enctype="multipart/form-data">
+                  <!-- Left -->
+                  <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">Shop Name</label>
+                    <input id="shopName" class="form-control" type="text" placeholder="e.g., Royal Stitch Studio" />
+                  </div>
+
+                  <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold">City</label>
+                    <input id="city" class="form-control" type="text" placeholder="e.g., Mumbai" />
+                  </div>
+
+                  <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold">Area</label>
+                    <input id="area" class="form-control" type="text" placeholder="e.g., Andheri" />
+                  </div>
+
+                  <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold">Experience (Years)</label>
+                    <input id="experienceYears" class="form-control" type="number" min="0" placeholder="e.g., 6" />
+                  </div>
+
+                  <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold">Starting Price (₹)</label>
+                    <input id="startingPrice" class="form-control" type="number" min="0" placeholder="e.g., 799" />
+                  </div>
+
+                  <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold">Gender</label>
+                    <select id="gender" class="form-select">
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <!-- Image Upload -->
+                  <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">Profile Image (Upload)</label>
+                    <input id="profileImage" class="form-control" type="file" accept="image/*" />
+                    <div class="form-text">PNG / JPG / JPEG / WEBP, up to 3MB.</div>
+                  </div>
+
+                  <!-- Preview -->
+                  <div class="col-12">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:#f8fafc">
+                      <img
+                        id="profilePreview"
+                        src=""
+                        alt="Preview"
+                        style="width:72px;height:72px;object-fit:cover;border-radius:16px;display:none"
+                      />
+                      <div>
+                        <div class="fw-semibold">Preview</div>
+                        <div class="small text-muted" id="previewHint">Upload an image to preview here.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- About -->
+                  <div class="col-12">
+                    <label class="form-label fw-semibold">About Your Shop</label>
+                    <textarea
+                      id="about"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Tell customers what you specialize in, your finishing quality, timelines, etc."
+                    ></textarea>
+                  </div>
+
+                  <!-- Specializations -->
+                  <div class="col-12">
+                    <label class="form-label fw-semibold mb-2">Specializations</label>
+                    <div class="row g-2">
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Saree Blouse" id="spec1" />
+                          <label class="form-check-label" for="spec1">Saree Blouse</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Lehenga" id="spec2" />
+                          <label class="form-check-label" for="spec2">Lehenga</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Kurta / Suits" id="spec3" />
+                          <label class="form-check-label" for="spec3">Kurta / Suits</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Men’s Suits" id="spec4" />
+                          <label class="form-check-label" for="spec4">Men’s Suits</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Sherwani" id="spec5" />
+                          <label class="form-check-label" for="spec5">Sherwani</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Alterations" id="spec6" />
+                          <label class="form-check-label" for="spec6">Alterations</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Embroidery" id="spec7" />
+                          <label class="form-check-label" for="spec7">Embroidery</label>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="form-check">
+                          <input class="form-check-input specCheck" type="checkbox" value="Kids Wear" id="spec8" />
+                          <label class="form-check-label" for="spec8">Kids Wear</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Other specializations -->
+                    <div class="mt-3">
+                      <label class="form-label fw-semibold">Other Specializations (optional)</label>
+                      <input
+                        id="otherSpecializations"
+                        class="form-control"
+                        type="text"
+                        placeholder="e.g., Bridal Gowns, Western Wear, Designer Blouse (comma separated)"
+                      />
+                      <div class="form-text">
+                        Type any extra services you offer, separated by commas.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="col-12 d-flex flex-column flex-sm-row gap-2 justify-content-end mt-2">
+                    <button id="btnSave" type="submit" class="btn btn-primary px-4">
+                      Save Changes
+                    </button>
+                    <a href="tailor-dashboard.html" class="btn btn-outline-secondary">
+                      Cancel
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <p class="small text-muted mt-3 mb-0">
+              Tip: A complete profile increases trust and improves conversions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Navbar auth -->
+    <script src="../scripts/navbar-auth.js"></script>
+
+    <!-- Shop Edit JS -->
+    <script src="../scripts/tailor-shop-edit.js"></script>
+  </body>
+</html>

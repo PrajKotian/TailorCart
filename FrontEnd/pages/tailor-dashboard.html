@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TailorCart | Tailor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../styles/style.css" />
+
+    <!-- ✅ Guard first -->
+    <script src="../scripts/guards/tailor-guard.js"></script>
+
+    <style>
+      .tc-page {
+        background: #ffffff;
+        min-height: 100vh;
+      }
+      .tc-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      }
+      .tc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        background: rgba(255, 255, 255, 0.85);
+        font-size: 13px;
+      }
+      .tc-card {
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+      }
+      .tc-card-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        background: rgba(15, 23, 42, 0.02);
+      }
+      .tc-card-body {
+        padding: 16px;
+      }
+      .tc-big {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .tc-muted {
+        color: rgba(15, 23, 42, 0.65);
+      }
+      .tc-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        background: #fff;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .tc-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+      }
+      .tc-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: rgba(217, 119, 6, 0.12);
+        border: 1px solid rgba(217, 119, 6, 0.25);
+        font-size: 18px;
+      }
+      .tc-progress-wrap {
+        height: 10px;
+        background: rgba(15, 23, 42, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .tc-progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #d97706, #fbbf24);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="tc-page">
+      <!-- NAVBAR -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar">
+        <div class="container">
+          <a class="navbar-brand fw-bold brand-logo" href="index.html">Tailor Cart</a>
+
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="index.html#categories">Categories</a></li>
+              <li class="nav-item"><a class="nav-link" href="tailors.html">Find Tailors</a></li>
+              <li class="nav-item"><a class="nav-link" href="index.html#how-it-works">How It Works</a></li>
+              <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+            </ul>
+
+            <div class="d-flex gap-2 align-items-center" id="navGuest">
+              <a href="login.html" class="btn btn-link text-decoration-none nav-link-btn">Sign In</a>
+              <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor tc-magnetic">Join as Tailor</a>
+            </div>
+
+            <div class="d-none" id="navAuth">
+              <div class="nav-auth-wrap">
+                <div class="dropdown">
+                  <button class="btn nav-user-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <span class="nav-user-pill">
+                      <span class="nav-user-dot"></span>
+                      <span class="nav-user-text">Hi, <span id="navUserName">User</span></span>
+                    </span>
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                    <li>
+                      <div class="tc-dd__head">
+                        <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                        <div>
+                          <p class="tc-dd__name mb-0" id="navUserNameMenu">User</p>
+                          <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                        </div>
+                      </div>
+                    </li>
+
+                    <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                    <li>
+                      <a class="dropdown-item" href="tailor-dashboard.html">
+                        <span class="tc-dd__ico">👤</span><span>My Profile</span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a class="dropdown-item" href="tailor-orders.html">
+                        <span class="tc-dd__ico">🧾</span><span>My Orders</span>
+                      </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+
+                    <li>
+                      <button class="dropdown-item text-danger" id="navLogoutBtn" type="button">
+                        <span class="tc-dd__ico">⎋</span><span>Logout</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <a href="tailor-orders.html" class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic">
+                  View Requests
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="container py-4">
+        <div class="row g-3 align-items-stretch mb-2">
+          <div class="col-lg-7">
+            <div class="tc-card h-100">
+              <div class="tc-card-body">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                  <div>
+                    <h4 class="mb-1">Welcome back 👋</h4>
+                    <p class="tc-muted mb-0">
+                      Keep it simple: check new requests, update orders, and complete your shop profile.
+                    </p>
+                    <div class="mt-2 small tc-muted">
+                      Signed in as: <span id="tcTailorEmail">—</span>
+                    </div>
+                  </div>
+                  <div class="tc-chip">📍 <span id="tcTailorCity">City</span></div>
+                </div>
+
+                <hr class="my-3" />
+
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="small tc-muted mb-1">Shop profile completion</div>
+                    <div class="fw-semibold"><span id="tcProfilePct">0%</span> complete</div>
+                  </div>
+
+                  <button id="tcEditShopBtn" class="btn btn-primary btn-sm">Edit Shop Profile</button>
+                </div>
+
+                <div class="tc-progress-wrap mt-2">
+                  <div class="tc-progress-bar" id="tcProfileBar"></div>
+                </div>
+
+                <div class="small tc-muted mt-2" id="tcProfileHint">
+                  Tip: Completing your profile helps customers trust you faster.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="tc-card h-100">
+                  <div class="tc-card-header small tc-muted">New Requests</div>
+                  <div class="tc-card-body">
+                    <div class="tc-big" id="tcNewRequests">0</div>
+                    <div class="small tc-muted">Need your action</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-6">
+                <div class="tc-card h-100">
+                  <div class="tc-card-header small tc-muted">Active Orders</div>
+                  <div class="tc-card-body">
+                    <div class="tc-big" id="tcActiveOrders">0</div>
+                    <div class="small tc-muted">In progress</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="tc-card">
+                  <div class="tc-card-header small tc-muted">Quick Actions</div>
+                  <div class="tc-card-body d-grid gap-2">
+                    <a href="tailor-orders.html" class="tc-action-btn">
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="tc-icon">📦</div>
+                        <div>
+                          <div class="fw-semibold">View Orders</div>
+                          <div class="small tc-muted">Accept, price, update status</div>
+                        </div>
+                      </div>
+                      <div class="tc-muted">→</div>
+                    </a>
+
+                    <a href="#" class="tc-action-btn" id="tcPortfolioBtn">
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="tc-icon">📸</div>
+                        <div>
+                          <div class="fw-semibold">Add Portfolio</div>
+                          <div class="small tc-muted">Upload photos/videos (optional)</div>
+                        </div>
+                      </div>
+                      <div class="tc-muted">→</div>
+                    </a>
+
+                    <a href="#" class="tc-action-btn" id="tcHelpBtn">
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="tc-icon">💬</div>
+                        <div>
+                          <div class="fw-semibold">Help on WhatsApp</div>
+                          <div class="small tc-muted">Quick support</div>
+                        </div>
+                      </div>
+                      <div class="tc-muted">→</div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tc-card mt-3">
+          <div class="tc-card-header d-flex align-items-center justify-content-between">
+            <span class="small tc-muted">Recent Requests</span>
+            <a class="small" href="tailor-orders.html" style="text-decoration: none">View all →</a>
+          </div>
+          <div class="tc-card-body" id="tcRecentOrders">
+            <p class="small text-muted mb-0">Loading...</p>
+          </div>
+        </div>
+
+        <div class="mt-3" id="tcNotice" style="display:none;"></div>
+      </main>
+    </div>
+
+    <!-- ✅ Edit Shop Profile Modal -->
+    <div class="modal fade" id="tcShopModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Shop Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="tcShopForm" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Shop / Tailor Name</label>
+                <input id="tcShopName" class="form-control" placeholder="e.g., Priya Sharma" required />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">City</label>
+                <input id="tcShopCity" class="form-control" placeholder="e.g., Delhi" required />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Area</label>
+                <input id="tcShopArea" class="form-control" placeholder="e.g., Rohini" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Experience (Years)</label>
+                <input id="tcShopExp" type="number" min="0" class="form-control" placeholder="e.g., 7" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Starting Price (₹)</label>
+                <input id="tcShopPrice" type="number" min="0" class="form-control" placeholder="e.g., 799" />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">About</label>
+                <textarea id="tcShopAbout" class="form-control" rows="4" placeholder="Tell customers what you specialize in..."></textarea>
+              </div>
+
+              <div class="col-12 d-flex align-items-center gap-2">
+                <button class="btn btn-primary" type="submit">Save Changes</button>
+                <div class="ms-auto" id="tcShopMsg"></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared scripts -->
+    <script src="../scripts/navbar-auth.js"></script>
+    <script src="../scripts/ordersStore.js"></script>
+
+    <!-- Page script -->
+    <script src="../scripts/tailorDashboard.js"></script>
+  </body>
+</html>

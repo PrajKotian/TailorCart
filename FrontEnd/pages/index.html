@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Tailor Cart | Connect with Expert Tailors</title>
+    <title>Tailor Cart | Custom Clothing, Crafted Around You</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
 
@@ -17,21 +17,51 @@
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
     />
 
-    <!-- Custom CSS -->
+    <!-- Global CSS -->
     <link rel="stylesheet" href="../styles/style.css" />
+
+    <!-- Home “WOW” CSS -->
+    <link rel="stylesheet" href="../styles/home.css" />
   </head>
-  <body>
+
+  <body class="tc-home">
+    <!-- Scroll progress -->
+    <div class="tc-progress">
+      <div class="tc-progress__bar" id="tcProgressBar"></div>
+    </div>
+
+    <!-- Ambient layers -->
+    <div class="tc-ambient" aria-hidden="true">
+      <div class="tc-grain"></div>
+      <div class="tc-spotlight" id="tcSpotlight"></div>
+      <div class="tc-threads">
+        <span class="thread t1"></span>
+        <span class="thread t2"></span>
+        <span class="thread t3"></span>
+        <span class="thread t4"></span>
+        <span class="thread t5"></span>
+        <span class="thread t6"></span>
+      </div>
+
+      <!-- Cursor thread -->
+      <div class="tc-cursor-thread" id="tcCursorThread">
+        <span class="tc-cursor-thread__dot"></span>
+      </div>
+    </div>
+
     <!-- NAVBAR -->
     <nav
-      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar"
     >
       <div class="container">
-        <a class="navbar-brand fw-bold brand-logo" href="#"> Tailor Cart </a>
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold brand-logo" href="index.html"
+          >Tailor Cart</a
+        >
 
+        <!-- Mobile toggle -->
         <button
           class="navbar-toggler"
           type="button"
@@ -45,50 +75,176 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNavbar">
+          <!-- Nav links -->
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link" href="index.html">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#categories">Categories</a>
+              <a class="nav-link" href="index.html#categories">Categories</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="tailors.html">Find Tailors</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#how-it-works">How It Works</a>
+              <a class="nav-link" href="index.html#how-it-works"
+                >How It Works</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">About Us</a>
             </li>
           </ul>
 
-          <div class="d-flex gap-2">
-            <a href="login.html" class="btn btn-link text-decoration-none"
+          <!-- RIGHT SIDE: GUEST -->
+          <div class="d-flex gap-2 align-items-center" id="navGuest">
+            <a
+              href="login.html"
+              class="btn btn-link text-decoration-none nav-link-btn"
               >Sign In</a
             >
-            <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor"
+            <a
+              href="signup-tailor.html"
+              class="btn btn-primary btn-join-tailor tc-magnetic"
               >Join as Tailor</a
             >
+          </div>
+
+          <!-- RIGHT SIDE: AUTH -->
+          <div class="d-none" id="navAuth">
+            <div class="nav-auth-wrap">
+              <!-- User pill dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn nav-user-btn dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span class="nav-user-pill">
+                    <span class="nav-user-dot"></span>
+                    <span class="nav-user-text"
+                      >Hi, <span id="navUserName">User</span></span
+                    >
+                  </span>
+                </button>
+
+                <!-- Upgraded dropdown -->
+                <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                  <!-- Header -->
+                  <li>
+                    <div class="tc-dd__head">
+                      <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                      <div>
+                        <p class="tc-dd__name mb-0" id="navUserNameMenu">
+                          User
+                        </p>
+                        <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                      </div>
+                    </div>
+                  </li>
+
+                  <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                  <li>
+                    <a class="dropdown-item" href="profile.html">
+                      <span class="tc-dd__ico">👤</span>
+                      <span>My Profile</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="customer-dashboard.html">
+                      <span class="tc-dd__ico">🧾</span>
+                      <span>My Orders</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a class="dropdown-item" href="tailors.html">
+                      <span class="tc-dd__ico">✂️</span>
+                      <span>Find Tailors</span>
+                    </a>
+                  </li>
+
+                  <li><hr class="dropdown-divider" /></li>
+
+                  <li>
+                    <button
+                      class="dropdown-item text-danger"
+                      id="navLogoutBtn"
+                      type="button"
+                    >
+                      <span class="tc-dd__ico">⎋</span>
+                      <span>Logout</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Separate button -->
+              <a
+                href="tailors.html"
+                class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic"
+                >+ New Order</a
+              >
+            </div>
           </div>
         </div>
       </div>
     </nav>
 
-    <!-- HERO / HEADER -->
-    <header class="hero-section d-flex align-items-center">
+    <!-- HERO (kept your existing structure) -->
+    <header
+      class="hero-section d-flex align-items-center tc-reveal tc-hero-wow"
+    >
       <div class="hero-overlay"></div>
+
+      <!-- Stitch SVG overlay -->
+      <svg
+        class="tc-stitch tc-stitch--home"
+        viewBox="0 0 1200 260"
+        aria-hidden="true"
+      >
+        <path
+          id="tcStitchPath"
+          d="M30 170 C 180 60, 260 240, 420 140
+             S 650 80, 760 160
+             S 980 240, 1170 110"
+          fill="none"
+          stroke="rgba(217,119,6,0.55)"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-dasharray="14 14"
+        />
+        <circle
+          class="tc-needle"
+          cx="30"
+          cy="170"
+          r="10"
+          fill="rgba(217,119,6,0.95)"
+        />
+      </svg>
+
       <div class="container position-relative text-center">
         <div class="row justify-content-center">
-          <div class="col-lg-8 col-xl-7">
-            <h1 class="hero-title">
-              Connect with Expert Tailors
-              <span class="hero-highlight d-block">Across India</span>
+          <div class="col-lg-9 col-xl-8">
+            <p class="tc-kicker tc-reveal">From thread to tailored</p>
+
+            <h1 class="hero-title tc-glow tc-reveal">
+              Custom clothing,
+              <span class="hero-highlight d-block">crafted around you.</span>
             </h1>
-            <p class="hero-subtitle">
-              Get custom-made clothing from skilled local tailors. Perfect fit,
-              traditional craftsmanship, modern convenience.
+
+            <p class="hero-subtitle tc-reveal">
+              Discover skilled local tailors. Share inspiration. Get the perfect
+              fit — without confusion.
             </p>
 
-            <!-- Search Bar -->
-            <div class="hero-search card border-0 shadow-lg p-3 p-md-4 mt-4">
+            <!-- Search Bar (your original block, upgraded wrap only) -->
+            <div
+              class="hero-search card border-0 shadow-lg p-3 p-md-4 mt-4 tc-reveal tc-glassbar"
+            >
               <div class="row g-2 align-items-center">
                 <div class="col-md-5">
                   <div class="input-group">
@@ -96,60 +252,214 @@
                       type="text"
                       class="form-control border-start-0"
                       placeholder="Search for tailors, garments..."
+                      id="homeSearchQ"
                     />
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                    </span>
+                    <span class="input-group-text bg-white border-end-0"></span>
                     <input
                       type="text"
                       class="form-control border-start-0"
                       placeholder="Enter your city"
+                      id="homeSearchCity"
                     />
                   </div>
                 </div>
                 <div class="col-md-3 d-grid">
-                  <button class="btn btn-primary btn-search">Search</button>
+                  <button
+                    class="btn btn-primary btn-search tc-magnetic"
+                    id="homeSearchBtn"
+                  >
+                    Search
+                  </button>
                 </div>
+              </div>
+
+              <!-- Quick chips -->
+              <div class="tc-chips mt-3">
+                <a class="tc-chip" href="tailors.html?garment=alterations"
+                  >Alterations</a
+                >
+                <a class="tc-chip" href="tailors.html?garment=saree"
+                  >Saree Blouse</a
+                >
+                <a class="tc-chip" href="tailors.html?garment=lehenga"
+                  >Bridal</a
+                >
+                <a class="tc-chip" href="tailors.html?garment=mens-suits"
+                  >Men’s Suits</a
+                >
+                <a class="tc-chip" href="tailors.html?garment=kurta">Kurtas</a>
               </div>
             </div>
 
-            <!-- Hero CTA Buttons -->
+            <!-- Hero CTA -->
             <div
-              class="d-flex flex-column flex-md-row gap-3 mt-4 justify-content-center"
+              class="d-flex flex-column flex-md-row gap-3 mt-4 justify-content-center tc-reveal"
             >
-              <a href="tailors.html" class="btn btn-primary btn-lg">
-                Find Tailors Near You
+              <a href="#journey" class="btn btn-primary btn-lg tc-magnetic">
+                Start Your Journey
               </a>
               <a
-                href="signup-tailor.html"
-                class="btn btn-outline-light btn-lg text-nowrap"
+                href="tailors.html"
+                class="btn btn-outline-light btn-lg tc-magnetic"
               >
-                Join as Tailor
+                Explore Tailors
               </a>
+            </div>
+
+            <div
+              class="tc-scrollhint tc-reveal"
+              style="justify-content: center"
+            >
+              <span class="tc-scrollhint__dot"></span>
+              <span class="tc-scrollhint__text">Scroll the atelier</span>
             </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- SHOP BY CATEGORY -->
-    <section id="categories" class="py-5 py-md-6 bg-light">
+    <!-- CRAFT PROMISE -->
+    <section class="tc-scene tc-promise">
       <div class="container">
-        <div class="text-center mb-4 mb-md-5">
+        <div class="text-center mb-4 mb-md-5 tc-reveal">
+          <p class="tc-kicker">The promise</p>
+          <h2 class="tc-h1">Built for the craft. Designed for clarity.</h2>
+          <p class="tc-lead mx-auto">
+            Tailor Cart helps customers and tailors meet with trust, structure,
+            and a smooth order flow.
+          </p>
+        </div>
+
+        <div class="row g-3 tc-upgrade-cards">
+          <div class="col-md-4">
+            <div class="tc-feature tc-reveal tc-tilt">
+              <div class="tc-feature__icon">🧵</div>
+              <h3 class="tc-h3">Skilled Hands</h3>
+              <p>Verified profiles, real experience, real work.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="tc-feature tc-reveal tc-tilt">
+              <div class="tc-feature__icon">📐</div>
+              <h3 class="tc-h3">Perfect Fit Process</h3>
+              <p>Measurements, design sharing, and clarity at every step.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="tc-feature tc-reveal tc-tilt">
+              <div class="tc-feature__icon">🤝</div>
+              <h3 class="tc-h3">Trust & Transparency</h3>
+              <p>Clear pricing, timelines, and communication.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- YOUR TAILORING JOURNEY (screenshot style) -->
+    <section id="journey" class="tc-scene tc-journey-scene">
+      <div class="container">
+        <div class="text-center mb-4 mb-md-5 tc-reveal">
+          <p class="tc-kicker">Your experience</p>
+          <h2 class="tc-h1">Your Tailoring Journey</h2>
+          <p class="tc-lead mx-auto">
+            From inspiration to creation — a guided flow that respects the
+            craft.
+          </p>
+        </div>
+
+        <div class="tc-journey-grid tc-reveal">
+          <div class="tc-jcard tc-tilt" data-step="1">
+            <div class="tc-jcard__step">1</div>
+            <div class="tc-jcard__icon tc-jcard__icon--blue">🔍</div>
+            <h5 class="tc-jcard__title">Discover</h5>
+            <div class="tc-jcard__sub">Find Your Tailor</div>
+            <p class="tc-jcard__text">
+              Browse skilled tailors near you by specialization, ratings, and
+              delivery speed.
+            </p>
+          </div>
+
+          <div class="tc-jcard tc-tilt" data-step="2">
+            <div class="tc-jcard__step">2</div>
+            <div class="tc-jcard__icon tc-jcard__icon--purple">🖼️</div>
+            <h5 class="tc-jcard__title">Design</h5>
+            <div class="tc-jcard__sub">Share Your Vision</div>
+            <p class="tc-jcard__text">
+              Upload inspiration, reference outfits, and details — no confusion.
+            </p>
+          </div>
+
+          <div class="tc-jcard tc-tilt" data-step="3">
+            <div class="tc-jcard__step">3</div>
+            <div class="tc-jcard__icon tc-jcard__icon--green">📏</div>
+            <h5 class="tc-jcard__title">Measure</h5>
+            <div class="tc-jcard__sub">Fit Your Way</div>
+            <p class="tc-jcard__text">
+              Use saved measurements, enter manually, or get tailor-assisted
+              fitting.
+            </p>
+          </div>
+
+          <div class="tc-jcard tc-tilt" data-step="4">
+            <div class="tc-jcard__step">4</div>
+            <div class="tc-jcard__icon tc-jcard__icon--amber">✂️</div>
+            <h5 class="tc-jcard__title">Craft</h5>
+            <div class="tc-jcard__sub">Stitching Progress</div>
+            <p class="tc-jcard__text">
+              Track progress with updates — feel confident your outfit is on the
+              right path.
+            </p>
+          </div>
+
+          <div class="tc-jcard tc-tilt" data-step="5">
+            <div class="tc-jcard__step">5</div>
+            <div class="tc-jcard__icon tc-jcard__icon--pink">📦</div>
+            <h5 class="tc-jcard__title">Deliver</h5>
+            <div class="tc-jcard__sub">Confidence Delivered</div>
+            <p class="tc-jcard__text">
+              Receive a tailored garment — crafted for you, not for the rack.
+            </p>
+          </div>
+        </div>
+
+        <div class="tc-journey-quote tc-reveal">
+          <p class="tc-journey-quote__line">
+            “Every stitch tells a story. Every garment carries a dream.”
+          </p>
+          <div class="tc-journey-quote__by">— Tailor Cart Philosophy</div>
+        </div>
+
+        <div class="text-center mt-4 tc-reveal">
+          <a href="tailors.html" class="btn btn-primary btn-lg tc-magnetic">
+            Find Tailors Now
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHOP BY CATEGORY (kept original carousel) -->
+    <section id="categories" class="py-5 py-md-6 bg-light tc-reveal">
+      <div class="container">
+        <div class="text-center mb-4 mb-md-5 tc-reveal">
+          <p class="tc-kicker">The studio</p>
           <h2 class="section-title">Shop by Category</h2>
           <p class="section-subtitle">
-            Discover expert tailors specializing in traditional and contemporary
-            Indian wear.
+            Start with your garment — we’ll guide you to the right tailor.
           </p>
         </div>
 
         <div
           id="categoryCarousel"
-          class="carousel slide"
+          class="carousel slide tc-upgrade-cards"
           data-bs-ride="carousel"
+          data-bs-interval="6500"
+          data-bs-touch="true"
+          data-bs-pause="hover"
         >
           <div class="carousel-inner">
             <!-- Slide 1 -->
@@ -161,7 +471,9 @@
                     href="tailors.html?garment=saree"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-saree.jpg"
@@ -172,8 +484,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Saree</h5>
                         <p class="card-text small text-muted mb-0">
-                          Custom saree blouses and draping-friendly fitting.
+                          Custom blouses and draping-friendly fitting.
                         </p>
+                        <div class="tc-mini-meta">Popular for weddings</div>
                       </div>
                     </div>
                   </a>
@@ -185,7 +498,9 @@
                     href="tailors.html?garment=kurta"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-kurta.jpg"
@@ -196,8 +511,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Kurta / Suits</h5>
                         <p class="card-text small text-muted mb-0">
-                          Festive and office wear kurtas with custom fit.
+                          Festive and office wear, stitched to measure.
                         </p>
+                        <div class="tc-mini-meta">Everyday essentials</div>
                       </div>
                     </div>
                   </a>
@@ -209,7 +525,9 @@
                     href="tailors.html?garment=sherwani"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-sherwani.jpg"
@@ -220,8 +538,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Sherwani</h5>
                         <p class="card-text small text-muted mb-0">
-                          Elegant sherwanis for weddings and receptions.
+                          Wedding-ready sherwanis with premium finish.
                         </p>
+                        <div class="tc-mini-meta">Occasion wear</div>
                       </div>
                     </div>
                   </a>
@@ -233,7 +552,9 @@
                     href="tailors.html?garment=lehenga"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-lehenga.jpg"
@@ -244,8 +565,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Lehenga</h5>
                         <p class="card-text small text-muted mb-0">
-                          Bridal and party wear lehengas stitched to measure.
+                          Bridal and party wear stitched for perfect fit.
                         </p>
+                        <div class="tc-mini-meta">Bridal craftsmanship</div>
                       </div>
                     </div>
                   </a>
@@ -253,7 +575,7 @@
               </div>
             </div>
 
-            <!-- Slide 2 (more categories) -->
+            <!-- Slide 2 -->
             <div class="carousel-item">
               <div class="row g-4">
                 <!-- Gowns -->
@@ -262,7 +584,9 @@
                     href="tailors.html?garment=gown"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-gown.jpg"
@@ -273,8 +597,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Gowns</h5>
                         <p class="card-text small text-muted mb-0">
-                          Cocktail and reception gowns with elegant drapes.
+                          Reception gowns with elegant drapes.
                         </p>
+                        <div class="tc-mini-meta">Luxury finish</div>
                       </div>
                     </div>
                   </a>
@@ -286,7 +611,9 @@
                     href="tailors.html?garment=kids-wear"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-kids.jpg"
@@ -297,8 +624,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Kids Wear</h5>
                         <p class="card-text small text-muted mb-0">
-                          Cute & comfy dresses and sets for kids.
+                          Cute & comfy outfits for kids.
                         </p>
+                        <div class="tc-mini-meta">Comfort-first</div>
                       </div>
                     </div>
                   </a>
@@ -310,7 +638,9 @@
                     href="tailors.html?garment=mens-suits"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-suit.jpg"
@@ -319,10 +649,11 @@
                         />
                       </div>
                       <div class="card-body text-center">
-                        <h5 class="card-title mb-1">Men's Suits</h5>
+                        <h5 class="card-title mb-1">Men’s Suits</h5>
                         <p class="card-text small text-muted mb-0">
                           Office, party and wedding suits.
                         </p>
+                        <div class="tc-mini-meta">Sharp tailoring</div>
                       </div>
                     </div>
                   </a>
@@ -334,7 +665,9 @@
                     href="tailors.html?garment=alterations"
                     class="text-decoration-none"
                   >
-                    <div class="card category-card h-100 border-0 shadow-sm">
+                    <div
+                      class="card category-card h-100 border-0 shadow-sm tc-tilt tc-fabric-card"
+                    >
                       <div class="category-img-wrapper">
                         <img
                           src="../assets/images/category-alteration.jpeg"
@@ -345,8 +678,9 @@
                       <div class="card-body text-center">
                         <h5 class="card-title mb-1">Alterations</h5>
                         <p class="card-text small text-muted mb-0">
-                          Quick fixes and perfect fitting for existing outfits.
+                          Quick fixes and perfect fitting.
                         </p>
+                        <div class="tc-mini-meta">Fast delivery</div>
                       </div>
                     </div>
                   </a>
@@ -377,21 +711,27 @@
       </div>
     </section>
 
-    <!-- FEATURED TAILORS -->
-    <section id="featured-tailors" class="py-5 py-md-6">
+    <!-- MEET THE MAKERS (featured tailors) -->
+    <section class="tc-scene tc-makers">
       <div class="container">
-        <div class="text-center mb-4 mb-md-5">
-          <h2 class="section-title">Featured Tailors</h2>
-          <p class="section-subtitle">
-            Meet our top-rated tailors known for exceptional craftsmanship and
-            customer service.
+        <div class="text-center mb-4 mb-md-5 tc-reveal">
+          <p class="tc-kicker">Meet the makers</p>
+          <h2 class="tc-h1">Tailors trusted for craft — not just ratings.</h2>
+          <p class="tc-lead mx-auto">
+            Profiles that show work, pricing clarity, and specializations.
           </p>
         </div>
 
-        <div class="row g-4">
-          <!-- Tailor 1 -->
+        <div class="row g-4 tc-upgrade-cards">
+          <!-- Maker 1 -->
           <div class="col-md-6 col-lg-4">
-            <div class="card tailor-card h-100 border-0 shadow-sm">
+            <div
+              class="card tailor-card h-100 border-0 shadow-sm tc-reveal tc-tilt"
+            >
+              <div class="tc-maker-badges">
+                <span class="tc-pill tc-pill--ok">Verified</span>
+                <span class="tc-pill tc-pill--fast">Fast Delivery</span>
+              </div>
               <img
                 src="../assets/images/tailor-rajesh-kumar.jpg"
                 class="card-img-top"
@@ -417,19 +757,30 @@
                   <span class="badge bg-light text-dark mb-1">Alterations</span>
                 </div>
 
-                <p class="small text-muted mb-1">15+ years experience</p>
-                <p class="small fw-semibold mb-3">From ₹800</p>
+                <div class="tc-maker-meta">
+                  <span>Known for: Bridal finishes</span>
+                  <span>From ₹800</span>
+                </div>
 
-                <a href="tailor-profile.html?id=1" class="tailor-link">
-                  View Profile →
+                <a
+                  href="tailor-profile.html?id=1"
+                  class="tailor-link tc-magnetic"
+                >
+                  View craft →
                 </a>
               </div>
             </div>
           </div>
 
-          <!-- Tailor 2 -->
+          <!-- Maker 2 -->
           <div class="col-md-6 col-lg-4">
-            <div class="card tailor-card h-100 border-0 shadow-sm">
+            <div
+              class="card tailor-card h-100 border-0 shadow-sm tc-reveal tc-tilt"
+            >
+              <div class="tc-maker-badges">
+                <span class="tc-pill tc-pill--ok">Verified</span>
+                <span class="tc-pill tc-pill--hot">Popular</span>
+              </div>
               <img
                 src="../assets/images/tailor-priya-sharma.jpg"
                 class="card-img-top"
@@ -453,19 +804,30 @@
                   >
                 </div>
 
-                <p class="small text-muted mb-1">12+ years experience</p>
-                <p class="small fw-semibold mb-3">From ₹1200</p>
+                <div class="tc-maker-meta">
+                  <span>Known for: Designer fits</span>
+                  <span>From ₹1200</span>
+                </div>
 
-                <a href="tailor-profile.html?id=2" class="tailor-link">
-                  View Profile →
+                <a
+                  href="tailor-profile.html?id=2"
+                  class="tailor-link tc-magnetic"
+                >
+                  View craft →
                 </a>
               </div>
             </div>
           </div>
 
-          <!-- Tailor 3 -->
+          <!-- Maker 3 -->
           <div class="col-md-6 col-lg-4">
-            <div class="card tailor-card h-100 border-0 shadow-sm">
+            <div
+              class="card tailor-card h-100 border-0 shadow-sm tc-reveal tc-tilt"
+            >
+              <div class="tc-maker-badges">
+                <span class="tc-pill tc-pill--ok">Verified</span>
+                <span class="tc-pill tc-pill--pro">Master</span>
+              </div>
               <img
                 src="../assets/images/tailor-mohammed-ali.jpg"
                 class="card-img-top"
@@ -486,178 +848,103 @@
                     >Sherwani</span
                   >
                   <span class="badge bg-light text-dark me-1 mb-1"
+                    >Embroidery</span
+                  >
+                  <span class="badge bg-light text-dark mb-1"
                     >Traditional Wear</span
                   >
-                  <span class="badge bg-light text-dark mb-1">Embroidery</span>
                 </div>
 
-                <p class="small text-muted mb-1">20+ years experience</p>
-                <p class="small fw-semibold mb-3">From ₹1500</p>
+                <div class="tc-maker-meta">
+                  <span>Known for: Wedding sherwanis</span>
+                  <span>From ₹1500</span>
+                </div>
 
-                <a href="tailor-profile.html?id=3" class="tailor-link">
-                  View Profile →
+                <a
+                  href="tailor-profile.html?id=3"
+                  class="tailor-link tc-magnetic"
+                >
+                  View craft →
                 </a>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="text-center mt-4">
-          <a href="tailors.html" class="btn btn-primary btn-lg">
-            View All Tailors
+        <div class="text-center mt-4 tc-reveal">
+          <a href="tailors.html" class="btn btn-primary btn-lg tc-magnetic">
+            Explore All Tailors
           </a>
         </div>
       </div>
     </section>
 
-    <!-- HOW IT WORKS -->
-    <section id="how-it-works" class="py-5 py-md-6 bg-light">
+    <!-- CAPABILITY PREVIEW -->
+    <section class="tc-scene tc-capabilities tc-darkish">
       <div class="container">
-        <div class="text-center mb-4 mb-md-5">
-          <h2 class="section-title">How It Works</h2>
-          <p class="section-subtitle">
-            Get your perfect custom outfit in just a few simple steps.
+        <div class="text-center mb-4 mb-md-5 tc-reveal">
+          <p class="tc-kicker tc-kicker--light" href="#what-you-can-do">
+            What you can do
+          </p>
+          <h2 class="tc-h1 tc-h1--light">
+            Tailor Cart makes tailoring simple.
+          </h2>
+          <p class="tc-lead tc-lead--light mx-auto">
+            A modern flow built around craft — not confusion.
           </p>
         </div>
 
-        <div class="row g-4 text-center">
-          <div class="col-md-3">
-            <div class="how-step">
-              <div class="how-icon">🔍</div>
-              <h5 class="mt-3 mb-2">Find Tailors</h5>
-              <p class="small text-muted">
-                Search and browse tailors in your area based on specialization
-                and ratings.
-              </p>
+        <div class="row g-3 tc-upgrade-cards">
+          <div class="col-md-6 col-lg-3">
+            <div class="tc-glass tc-reveal tc-tilt tc-glass--dark">
+              <h4>Upload designs</h4>
+              <p>Share inspiration with images, notes, and references.</p>
             </div>
           </div>
-
-          <div class="col-md-3">
-            <div class="how-step">
-              <div class="how-icon">🧵</div>
-              <h5 class="mt-3 mb-2">Choose Design</h5>
-              <p class="small text-muted">
-                Select garment type, upload design inspiration, and choose
-                fabrics.
-              </p>
+          <div class="col-md-6 col-lg-3">
+            <div class="tc-glass tc-reveal tc-tilt tc-glass--dark">
+              <h4>Save measurements</h4>
+              <p>Reuse sizes for future orders — consistent fits.</p>
             </div>
           </div>
-
-          <div class="col-md-3">
-            <div class="how-step">
-              <div class="how-icon">📏</div>
-              <h5 class="mt-3 mb-2">Get Measured</h5>
-              <p class="small text-muted">
-                Provide measurements manually or visit tailor for precise
-                fitting.
-              </p>
+          <div class="col-md-6 col-lg-3">
+            <div class="tc-glass tc-reveal tc-tilt tc-glass--dark">
+              <h4>Track progress</h4>
+              <p>Clear updates from tailoring to delivery.</p>
             </div>
           </div>
-
-          <div class="col-md-3">
-            <div class="how-step">
-              <div class="how-icon">📦</div>
-              <h5 class="mt-3 mb-2">Receive Order</h5>
-              <p class="small text-muted">
-                Get your perfectly fitted custom garment delivered to your
-                doorstep.
-              </p>
+          <div class="col-md-6 col-lg-3">
+            <div class="tc-glass tc-reveal tc-tilt tc-glass--dark">
+              <h4>Talk to tailor</h4>
+              <p>Quick clarifications. Zero guesswork.</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- TESTIMONIALS -->
-    <section id="testimonials" class="py-5 py-md-6">
+    <!-- FINAL CTA -->
+    <section class="tc-scene tc-final">
       <div class="container">
-        <div class="text-center mb-4 mb-md-5">
-          <h2 class="section-title">What Our Customers Say</h2>
-          <p class="section-subtitle">
-            Real experiences from customers who found their perfect tailor.
-          </p>
-        </div>
-
-        <div class="row g-4">
-          <!-- Review 1 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card review-card h-100 border-0 shadow-sm">
-              <div class="card-body">
-                <div class="mb-2 text-warning">
-                  ★★★★★ <span class="text-muted small">(5/5)</span>
-                </div>
-                <p class="mb-3">
-                  "Amazing experience! The tailor understood exactly what I
-                  wanted for my wedding lehenga. The fitting was perfect and the
-                  quality exceeded my expectations."
-                </p>
-                <h6 class="mb-0">Anita Desai</h6>
-                <p class="small text-muted mb-0">Pune · Wedding Lehenga</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Review 2 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card review-card h-100 border-0 shadow-sm">
-              <div class="card-body">
-                <div class="mb-2 text-warning">
-                  ★★★★★ <span class="text-muted small">(5/5)</span>
-                </div>
-                <p class="mb-3">
-                  "Professional service and excellent craftsmanship. My sherwani
-                  was ready on time and looked absolutely stunning. Highly
-                  recommend!"
-                </p>
-                <h6 class="mb-0">Vikram Singh</h6>
-                <p class="small text-muted mb-0">Jaipur · Wedding Sherwani</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Review 3 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card review-card h-100 border-0 shadow-sm">
-              <div class="card-body">
-                <div class="mb-2 text-warning">
-                  ★★★★☆ <span class="text-muted small">(4/5)</span>
-                </div>
-                <p class="mb-3">
-                  "Great platform to find skilled tailors. The communication was
-                  smooth and the final product was exactly as discussed. Will
-                  definitely use again."
-                </p>
-                <h6 class="mb-0">Deepika Patel</h6>
-                <p class="small text-muted mb-0">Ahmedabad · Saree Blouse</p>
-              </div>
-            </div>
+        <div class="tc-final__box tc-reveal">
+          <h2>Begin your tailoring journey.</h2>
+          <p>From inspiration to perfect fit — one stitch at a time.</p>
+          <div class="tc-final__actions">
+            <a class="tc-btn tc-btn--primary tc-magnetic" href="tailors.html">
+              Find a Tailor
+            </a>
+            <a
+              class="tc-btn tc-btn--ghost tc-magnetic"
+              href="signup-tailor.html"
+            >
+              Join as Tailor
+            </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CTA: READY TO GET STARTED -->
-    <section id="cta" class="cta-section py-5 py-md-6">
-      <div class="container text-center">
-        <h2 class="cta-title mb-3">Ready to Get Started?</h2>
-        <p class="cta-subtitle mb-4">
-          Join thousands of satisfied customers who found their perfect tailor
-          through our platform.
-        </p>
-        <div
-          class="d-flex flex-column flex-md-row justify-content-center gap-3"
-        >
-          <a href="tailors.html" class="btn btn-light btn-lg">
-            Find Your Tailor
-          </a>
-          <a href="signup-tailor.html" class="btn btn-outline-light btn-lg">
-            Become a Tailor Partner
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
+    <!-- FOOTER (your existing) -->
     <footer class="footer-section pt-5 pb-4">
       <div class="container">
         <div class="row g-4">
@@ -712,13 +999,15 @@
     </footer>
 
     <!-- Bootstrap JS -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JS -->
+    <!-- Your existing auth navbar -->
+    <script src="../scripts/navbar-auth.js"></script>
+
+    <!-- Home WOW JS -->
+    <script src="../scripts/home.js"></script>
+
+    <!-- Keep if you need other general features -->
     <script src="../scripts/main.js"></script>
   </body>
 </html>
