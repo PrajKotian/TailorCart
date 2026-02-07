@@ -14,31 +14,49 @@
 
   const modalEl = $("toModal");
   const modalBody = $("toModalBody");
-  const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+  const modal = modalEl && window.bootstrap?.Modal ? new bootstrap.Modal(modalEl) : null;
 
-  const API_BASE = "http://localhost:5000";
   const SESSION_KEY = "tc_current_user_v1";
 
   let myTailor = null; // {id, userId, ...}
   let allOrders = [];
+
+  // -----------------------------
+  // Helpers
+  // -----------------------------
+  function resolveApiBase() {
+    if (window.API_BASE_URL && typeof window.API_BASE_URL === "string") {
+      return window.API_BASE_URL.replace(/\/$/, "");
+    }
+    if (window.AuthStore?.API_BASE && typeof window.AuthStore.API_BASE === "string") {
+      return window.AuthStore.API_BASE.replace(/\/$/, "");
+    }
+    return "http://localhost:3000";
+  }
+
+  const API_BASE = resolveApiBase();
 
   function setMsg(text = "", type = "muted") {
     if (!msgEl) return;
     msgEl.className =
       "small mt-2 " +
       (type === "error" ? "text-danger" : type === "success" ? "text-success" : "text-muted");
-    msgEl.textContent = text;
+    msgEl.textContent = text || "";
   }
 
-  function getSession() {
+  function safeParse(raw) {
     try {
-      return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+      return JSON.parse(raw);
     } catch {
       return null;
     }
   }
 
-  function getUser(session) {
+  function getSession() {
+    return safeParse(localStorage.getItem(SESSION_KEY) || "null");
+  }
+
+  function normalizeUser(session) {
     if (!session) return null;
     const u = session.user && typeof session.user === "object" ? session.user : session;
     return {
@@ -57,8 +75,22 @@
     }
   }
 
+  async function apiFetch(path, options = {}) {
+    // Prefer AuthStore helper if present
+    if (window.AuthStore?.apiFetch) return window.AuthStore.apiFetch(path, options);
+    if (window.AuthStore?.authFetch) return window.AuthStore.authFetch(path, options);
+
+    const res = await fetch(API_BASE + path, {
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+    });
+
+    const data = await safeJson(res);
+    if (!res.ok) throw new Error(data?.error || data?.message || `Request failed (${res.status})`);
+    return data;
+  }
+
   async function fetchTailorByUserId(userId) {
-    // Backend route we added earlier: /api/tailors/by-user/:userId
     const res = await fetch(`${API_BASE}/api/tailors/by-user/${encodeURIComponent(userId)}`);
     const data = await safeJson(res);
     if (!res.ok) throw new Error(data?.error || "Failed to find tailor profile for this account.");
@@ -137,13 +169,13 @@
     const q = (searchInput?.value || "").trim().toLowerCase();
     const f = String(statusFilter?.value || "ALL").toUpperCase();
 
-    let list = [...allOrders];
+    let list = Array.isArray(allOrders) ? [...allOrders] : [];
 
     if (f !== "ALL") list = list.filter((o) => String(o.status || "").toUpperCase() === f);
 
     if (q) {
       list = list.filter((o) => {
-        const id = String(o.id || o.orderId || "").toLowerCase();
+        const id = String(o.id || o.orderId || o._id || "").toLowerCase();
         const garment = String(o.garmentType || o.garment || "").toLowerCase();
         const customer = String(o.customerName || o.customerEmail || "").toLowerCase();
         return id.includes(q) || garment.includes(q) || customer.includes(q);
@@ -170,16 +202,12 @@
 
     tbody.innerHTML = list
       .map((o) => {
-        const id = o.id || o.orderId || "—";
+        const id = o.id || o.orderId || o._id || "—";
         const customer = o.customerName || o.customerEmail || "Customer";
         const garment = o.garmentType || o.garment || "—";
         const status = String(o.status || "").toUpperCase();
 
-        // backend uses quote: { price, deliveryDays, note } in your other UI
-        // some older data might have quoteAmount
-        const quote =
-          o.quote?.price ?? o.quoteAmount ?? o.priceQuote ?? o.price ?? null;
-
+        const quote = o.quote?.price ?? o.quoteAmount ?? o.priceQuote ?? o.price ?? null;
         const created = fmtDate(o.createdAt);
 
         const actions = `
@@ -229,19 +257,26 @@
   }
 
   function openModal(order) {
-    if (!modalBody || !modal) return;
+    if (!modalBody || !modal) {
+      setMsg("Modal not available. Check bootstrap JS include.", "error");
+      return;
+    }
 
-    const id = order.id || order.orderId || "—";
+    const id = order.id || order.orderId || order._id || "—";
     const customer = order.customerName || order.customerEmail || "Customer";
     const garment = order.garmentType || order.garment || "—";
     const status = String(order.status || "").toUpperCase();
 
     const quoteValue = order.quote?.price ?? order.quoteAmount ?? "";
+    const daysValue = order.quote?.deliveryDays ?? "";
     const notes = order.designNotes || order.notes || order.description || "—";
     const created = fmtDate(order.createdAt);
 
     modalBody.innerHTML = `
-      <div class="mb-2"><span class="text-muted small">Order</span><div class="h5 mb-0">#${id}</div></div>
+      <div class="mb-2">
+        <span class="text-muted small">Order</span>
+        <div class="h5 mb-0">#${id}</div>
+      </div>
       <hr />
       <div class="row g-3">
         <div class="col-md-6">
@@ -270,7 +305,7 @@
           <div class="text-muted small mb-1">Send Quote (₹)</div>
           <div class="d-flex gap-2">
             <input id="toQuoteInput" class="form-control" type="number" min="0" value="${quoteValue}" placeholder="Enter quote amount" />
-            <input id="toDaysInput" class="form-control" type="number" min="1" value="${order.quote?.deliveryDays ?? ""}" placeholder="Days" style="max-width: 140px;" />
+            <input id="toDaysInput" class="form-control" type="number" min="1" value="${daysValue}" placeholder="Days" style="max-width: 140px;" />
             <button id="toSendQuoteBtn" class="btn btn-primary">Send</button>
           </div>
           <div class="text-muted small mt-2">Quote will move status to <b>QUOTED</b>.</div>
@@ -278,6 +313,7 @@
       </div>
     `;
 
+    // Bind send quote
     setTimeout(() => {
       const quoteInput = document.getElementById("toQuoteInput");
       const daysInput = document.getElementById("toDaysInput");
@@ -330,74 +366,68 @@
     }
   }
 
-  async function init() {
-    // Must have OrderStore
-    if (!window.OrderStore) {
-      setMsg("OrderStore not loaded. Check scripts include order.", "error");
+  async function handleAction(act, id) {
+    const order = allOrders.find((o) => String(o.id || o.orderId || o._id) === String(id));
+    if (!order) return;
+
+    if (act === "view" || act === "quote") {
+      openModal(order);
       return;
     }
 
-    const session = getSession();
-    const user = getUser(session);
+    try {
+      if (act === "progress") {
+        await window.OrderStore.updateStatus(id, "IN_PROGRESS", "");
+        setMsg("✅ Moved to IN_PROGRESS", "success");
+      } else if (act === "ready") {
+        await window.OrderStore.updateStatus(id, "READY", "");
+        setMsg("✅ Marked READY", "success");
+      } else if (act === "delivered") {
+        await window.OrderStore.updateStatus(id, "DELIVERED", "");
+        setMsg("✅ Marked DELIVERED", "success");
+      } else if (act === "cancel") {
+        if (!confirm("Cancel this order?")) return;
+        await window.OrderStore.updateStatus(id, "CANCELLED", "");
+        setMsg("✅ Order cancelled", "success");
+      }
+      await refresh();
+    } catch (err) {
+      setMsg(`❌ ${err.message || "Action failed"}`, "error");
+    }
+  }
 
-    // Guard should handle this already, but keep it safe
+  async function init() {
+    // Must have OrderStore
+    if (!window.OrderStore) {
+      setMsg("OrderStore not loaded. Check scripts include ordersStore.js before this file.", "error");
+      return;
+    }
+
+    // Session
+    const session = getSession();
+    const user = normalizeUser(session);
+
     if (!user || user.role !== "tailor") {
       window.location.href = "login.html?role=tailor";
       return;
     }
 
-    // ✅ fetch linked tailor profile (backend)
+    // Load linked tailor profile
+    setMsg("Loading tailor profile...", "muted");
     myTailor = await fetchTailorByUserId(user.id);
 
     // Events
     statusFilter?.addEventListener("change", () => renderTable());
     searchInput?.addEventListener("input", () => renderTable());
 
-    // Actions
-    document.addEventListener("click", async (e) => {
+    // Actions (bind only table body to avoid global conflicts)
+    tbody?.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-act]");
       if (!btn) return;
-
       const act = btn.getAttribute("data-act");
       const id = btn.getAttribute("data-id");
-
-      const order = allOrders.find((o) => String(o.id || o.orderId) === String(id));
-      if (!order) return;
-
-      if (act === "view" || act === "quote") {
-        openModal(order);
-        return;
-      }
-
-      try {
-        if (act === "progress") {
-          await window.OrderStore.updateStatus(id, "IN_PROGRESS", "");
-          setMsg("✅ Moved to IN_PROGRESS", "success");
-          await refresh();
-          return;
-        }
-        if (act === "ready") {
-          await window.OrderStore.updateStatus(id, "READY", "");
-          setMsg("✅ Marked READY", "success");
-          await refresh();
-          return;
-        }
-        if (act === "delivered") {
-          await window.OrderStore.updateStatus(id, "DELIVERED", "");
-          setMsg("✅ Marked DELIVERED", "success");
-          await refresh();
-          return;
-        }
-        if (act === "cancel") {
-          if (!confirm("Cancel this order?")) return;
-          await window.OrderStore.updateStatus(id, "CANCELLED", "");
-          setMsg("✅ Order cancelled", "success");
-          await refresh();
-          return;
-        }
-      } catch (err) {
-        setMsg(`❌ ${err.message || "Action failed"}`, "error");
-      }
+      if (!act || !id) return;
+      handleAction(act, id);
     });
 
     await refresh();

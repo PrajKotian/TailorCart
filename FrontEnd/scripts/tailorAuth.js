@@ -1,7 +1,7 @@
 /* FrontEnd/scripts/tailorAuth.js (CLEAN FIX for signup-tailor.html) */
 
 (() => {
-  const API_BASE = window.API_BASE_URL || "http://localhost:5000";
+const API_BASE = (window.API_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 
   const els = {
     joinForm: document.getElementById("joinTailorForm"),

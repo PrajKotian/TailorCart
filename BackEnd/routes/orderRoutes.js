@@ -14,35 +14,24 @@ const {
   patchOrder,
   customerSummary,
   tailorSummary,
-} = require("../controllers/orderController");
+} = require("../controllers/orderController"); // ✅ FIXED PATH
 
-// list all (supports ?userId= & ?tailorId=)
 router.get("/", getAllOrders);
 
-// summaries
 router.get("/customer/summary", customerSummary);
 router.get("/tailor/summary", tailorSummary);
 
-// filters
 router.get("/by-customer", getOrdersByCustomer);
 router.get("/by-tailor", getOrdersByTailor);
 
-// single order details
 router.get("/:id", getOrderById);
 
-// create new order
 router.post("/", createOrderRequest);
 
-// tailor quote
 router.post("/:id/quote", quoteOrder);
-
-// customer accept
 router.post("/:id/accept", acceptQuote);
 
-// tailor progress/cancel
 router.patch("/:id/status", updateOrderStatus);
-
-// generic patch
 router.patch("/:id", patchOrder);
 
 module.exports = router;

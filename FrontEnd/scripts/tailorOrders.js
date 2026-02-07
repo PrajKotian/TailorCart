@@ -1,10 +1,12 @@
 /* FrontEnd/scripts/tailorOrders.js
-   Phase 2: Tailor Orders Page (Quote + Status Updates)
-   ✅ FIXED: No forced logout on load + session normalization
+   Tailor Orders Page (Quote + Status Updates + Chat)
+   ✅ Uses API_BASE_URL (port 3000)
+   ✅ Uses /api/tailors/by-user/:userId (no fetching all tailors)
+   ✅ Uses OrderStore for orders + quote + status
+   ✅ No forced logout on load
 */
 
 (() => {
-  const API_BASE = window.API_BASE_URL || "http://localhost:5000";
   const SESSION_KEY = "tc_current_user_v1";
 
   // ----- DOM
@@ -38,6 +40,15 @@
     statusNote: document.getElementById("tcStatusNote"),
   };
 
+  // ----- API base (always 3000 in your setup)
+  function resolveApiBase() {
+    if (window.AuthStore?.API_BASE) return String(window.AuthStore.API_BASE).replace(/\/$/, "");
+    if (window.API_BASE_URL) return String(window.API_BASE_URL).replace(/\/$/, "");
+    // fallback if page forgot main.js
+    return "http://localhost:3000";
+  }
+  const API_BASE = resolveApiBase();
+
   // ----- state
   let currentUser = null;
   let myTailor = null;
@@ -52,16 +63,14 @@
       if (!raw) return null;
 
       const s = JSON.parse(raw);
-
-      // support both {id,role,...} and {user:{...}}
       const u = s?.user && typeof s.user === "object" ? s.user : s;
 
       return {
         ...u,
-        id: u.id ?? s.id,
-        role: (u.role ?? s.role ?? "").toLowerCase(),
-        email: u.email ?? s.email,
-        name: u.name ?? s.name,
+        id: u.id ?? s.id ?? null,
+        role: String(u.role ?? s.role ?? s.activeRole ?? "").toLowerCase(),
+        email: u.email ?? s.email ?? "",
+        name: u.name ?? s.name ?? "User",
       };
     } catch {
       return null;
@@ -80,11 +89,7 @@
   function setMsg(el, msg, type = "info") {
     if (!el) return;
     const cls =
-      type === "success"
-        ? "text-success"
-        : type === "error"
-        ? "text-danger"
-        : "text-muted";
+      type === "success" ? "text-success" : type === "error" ? "text-danger" : "text-muted";
     el.className = `small ${cls}`;
     el.textContent = msg || "";
   }
@@ -116,43 +121,35 @@
     }
   }
 
-  async function fetchAllTailors() {
-    const res = await fetch(`${API_BASE}/api/tailors`);
+  async function fetchTailorByUserId(userId) {
+    const res = await fetch(`${API_BASE}/api/tailors/by-user/${encodeURIComponent(userId)}`);
     const data = await safeJson(res);
-    if (!res.ok) throw new Error(data?.error || "Failed to load tailors");
-    return Array.isArray(data) ? data : [];
+    if (!res.ok) throw new Error(data?.error || "Tailor profile not found for this account.");
+    return data;
   }
 
   function setActiveTab(status) {
     activeStatus = status;
     const btns = els.tabs?.querySelectorAll(".nav-link") || [];
-    btns.forEach((b) => {
-      b.classList.toggle("active", b.dataset.status === status);
-    });
+    btns.forEach((b) => b.classList.toggle("active", b.dataset.status === status));
   }
 
   function getFilteredOrders() {
     const q = (els.search?.value || "").trim().toLowerCase();
-
-    let list = [...allOrders];
+    let list = Array.isArray(allOrders) ? [...allOrders] : [];
 
     if (activeStatus !== "ALL") {
-      list = list.filter(
-        (o) => String(o.status || "").toUpperCase() === activeStatus
-      );
+      list = list.filter((o) => String(o.status || "").toUpperCase() === activeStatus);
     }
 
     if (q) {
       list = list.filter((o) => {
-        const idMatch = String(o.id).toLowerCase().includes(q);
-        const garmentMatch = String(o.garmentType || "")
-          .toLowerCase()
-          .includes(q);
+        const idMatch = String(o.id ?? o.orderId ?? "").toLowerCase().includes(q);
+        const garmentMatch = String(o.garmentType || "").toLowerCase().includes(q);
         return idMatch || garmentMatch;
       });
     }
 
-    // latest first
     list.sort((a, b) => {
       const da = new Date(a.createdAt || 0).getTime();
       const db = new Date(b.createdAt || 0).getTime();
@@ -168,13 +165,15 @@
     if (typeof m === "string") return m;
     if (typeof m === "object") {
       const entries = Object.entries(m)
-        .filter(
-          ([, v]) => v !== null && v !== undefined && String(v).trim() !== ""
-        )
+        .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== "")
         .map(([k, v]) => `${k}: ${v}`);
       return entries.length ? entries.join(" · ") : "—";
     }
     return "—";
+  }
+
+  function openOrderChat(orderId) {
+    window.location.href = `tailor-order-chat.html?orderId=${encodeURIComponent(orderId)}`;
   }
 
   function render() {
@@ -196,26 +195,21 @@
 
     els.wrap.innerHTML = list
       .map((o) => {
-        const id = esc(o.id);
+        const id = esc(o.id ?? o.orderId ?? "");
         const garment = esc(o.garmentType || "Order");
         const st = statusLabel(o.status);
         const addr = esc(o.address || "");
         const created = o.createdAt ? new Date(o.createdAt).toLocaleString() : "";
 
         const quote = o.quote || null;
-        const quoteLine = quote
-          ? `₹${esc(quote.price)} · ${esc(quote.deliveryDays)} days`
-          : "—";
+        const quoteLine = quote ? `₹${esc(quote.price)} · ${esc(quote.deliveryDays)} days` : "—";
 
-        const canQuote = String(o.status || "").toUpperCase() === "REQUESTED";
-        const canUpdate = ["ACCEPTED", "IN_PROGRESS", "READY"].includes(
-          String(o.status || "").toUpperCase()
-        );
+        const statusU = String(o.status || "").toUpperCase();
+        const canQuote = statusU === "REQUESTED";
+        const canUpdate = ["ACCEPTED", "IN_PROGRESS", "READY"].includes(statusU);
+        const canChat = statusU !== "CANCELLED";
 
-        const focusClass =
-          focusOrderId && String(o.id) === String(focusOrderId)
-            ? "tc-order--focus"
-            : "";
+        const focusClass = focusOrderId && String(o.id) === String(focusOrderId) ? "tc-order--focus" : "";
 
         return `
           <div class="tc-order ${focusClass}" data-order-id="${id}">
@@ -230,16 +224,9 @@
               </div>
 
               <div class="tc-actions">
-                ${
-                  canQuote
-                    ? `<button class="btn btn-primary btn-sm" data-action="quote" data-id="${id}">Send Quote</button>`
-                    : ""
-                }
-                ${
-                  canUpdate
-                    ? `<button class="btn btn-outline-secondary btn-sm" data-action="status" data-id="${id}">Update Status</button>`
-                    : ""
-                }
+                ${canChat ? `<button class="btn btn-outline-primary btn-sm" data-action="chat" data-id="${id}">Chat</button>` : ""}
+                ${canQuote ? `<button class="btn btn-primary btn-sm" data-action="quote" data-id="${id}">Send Quote</button>` : ""}
+                ${canUpdate ? `<button class="btn btn-outline-secondary btn-sm" data-action="status" data-id="${id}">Update Status</button>` : ""}
                 <button class="btn btn-outline-secondary btn-sm" data-action="details" data-id="${id}">Details</button>
               </div>
             </div>
@@ -255,35 +242,31 @@
               </div>
             </div>
 
-            ${
-              quote?.note
-                ? `<div class="mt-2 small tc-muted">Note: ${esc(quote.note)}</div>`
-                : ""
-            }
+            ${quote?.note ? `<div class="mt-2 small tc-muted">Note: ${esc(quote.note)}</div>` : ""}
           </div>
         `;
       })
       .join("");
   }
 
-  // ----- modal handlers
+  // ----- modals
   let quoteModal = null;
   let statusModal = null;
 
   function openQuote(order) {
     setMsg(els.quoteMsg, "");
-    els.quoteOrderId.value = order.id;
-    els.quoteOrderLabel.textContent = `${order.garmentType || "Order"} · #${order.id}`;
+    els.quoteOrderId.value = order.id ?? order.orderId ?? "";
+    els.quoteOrderLabel.textContent = `${order.garmentType || "Order"} · #${order.id ?? order.orderId ?? ""}`;
     els.quotePrice.value = "";
     els.quoteDays.value = "";
     els.quoteNote.value = "";
-    quoteModal.show();
+    quoteModal?.show();
   }
 
   function openStatus(order) {
     setMsg(els.statusMsg, "");
-    els.statusOrderId.value = order.id;
-    els.statusOrderLabel.textContent = `${order.garmentType || "Order"} · #${order.id}`;
+    els.statusOrderId.value = order.id ?? order.orderId ?? "";
+    els.statusOrderLabel.textContent = `${order.garmentType || "Order"} · #${order.id ?? order.orderId ?? ""}`;
 
     const s = String(order.status || "").toUpperCase();
     if (s === "ACCEPTED") els.statusValue.value = "IN_PROGRESS";
@@ -292,7 +275,7 @@
     else els.statusValue.value = "IN_PROGRESS";
 
     els.statusNote.value = "";
-    statusModal.show();
+    statusModal?.show();
   }
 
   function openDetails(order) {
@@ -301,7 +284,7 @@
       : "Quote: —";
 
     const msg = [
-      `Order #${order.id}`,
+      `Order #${order.id ?? order.orderId ?? "—"}`,
       `Garment: ${order.garmentType || "—"}`,
       `Status: ${statusLabel(order.status)}`,
       `Address: ${order.address || "—"}`,
@@ -312,8 +295,9 @@
     alert(msg);
   }
 
-  // ----- API flow
   async function loadOrders() {
+    if (!els.wrap) return;
+
     els.wrap.innerHTML = `
       <div class="tc-card">
         <div class="tc-card-body">
@@ -322,16 +306,13 @@
       </div>
     `;
 
-    // ✅ uses your OrderStore backend method
     allOrders = await window.OrderStore.getOrdersByTailor(myTailor.id);
     allOrders = Array.isArray(allOrders) ? allOrders : [];
     render();
 
-    // scroll to focus order if provided
     if (focusOrderId) {
-      const el = document.querySelector(
-        `[data-order-id="${CSS.escape(String(focusOrderId))}"]`
-      );
+      const sel = `[data-order-id="${String(focusOrderId).replaceAll('"', '\\"')}"]`;
+      const el = document.querySelector(sel);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => el.classList.add("tc-order--focus"), 50);
@@ -339,11 +320,18 @@
     }
   }
 
-  // ----- init
   async function init() {
     parseParams();
 
-    // ✅ DO NOT remove session. Only read it.
+    // Must have OrderStore
+    if (!window.OrderStore) {
+      if (els.wrap) {
+        els.wrap.innerHTML = `<div class="alert alert-danger">OrderStore not loaded. Include ordersStore.js before this script.</div>`;
+      }
+      return;
+    }
+
+    // Session
     currentUser = getSessionUser();
     if (!currentUser || currentUser.role !== "tailor") {
       window.location.href = "login-tailor.html";
@@ -353,13 +341,13 @@
     if (els.tailorName) els.tailorName.textContent = currentUser.name || "Tailor";
     if (els.tailorEmail) els.tailorEmail.textContent = currentUser.email || "—";
 
-    // logout
+    // Logout
     els.logoutBtn?.addEventListener("click", () => {
       localStorage.removeItem(SESSION_KEY);
       window.location.href = "login-tailor.html";
     });
 
-    // tabs
+    // Tabs
     els.tabs?.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-status]");
       if (!btn) return;
@@ -367,46 +355,47 @@
       render();
     });
 
-    // search
+    // Search
     els.search?.addEventListener("input", () => render());
 
-    // refresh
+    // Refresh
     els.refreshBtn?.addEventListener("click", () => loadOrders().catch(console.error));
 
-    // modals
-    quoteModal = new bootstrap.Modal(els.quoteModalEl);
-    statusModal = new bootstrap.Modal(els.statusModalEl);
-
-    // find tailor profile by userId
-    const tailors = await fetchAllTailors();
-    myTailor = tailors.find((t) => String(t.userId) === String(currentUser.id)) || null;
-
-    if (!myTailor) {
-      els.wrap.innerHTML = `
-        <div class="alert alert-warning">
-          <div class="fw-semibold">Tailor profile not linked</div>
-          <div class="small">Your login is not connected to a tailor profile (missing userId link). Please re-register tailor account once.</div>
-        </div>
-      `;
-      return;
+    // Bootstrap modals
+    if (window.bootstrap?.Modal && els.quoteModalEl && els.statusModalEl) {
+      quoteModal = new bootstrap.Modal(els.quoteModalEl);
+      statusModal = new bootstrap.Modal(els.statusModalEl);
     }
 
-    // card actions (delegation)
-    els.wrap.addEventListener("click", (e) => {
+    // ✅ Correct tailor lookup
+    myTailor = await fetchTailorByUserId(currentUser.id);
+
+    // Actions (delegation)
+    els.wrap?.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-action]");
       if (!btn) return;
 
       const id = btn.dataset.id;
       const action = btn.dataset.action;
-      const order = allOrders.find((o) => String(o.id) === String(id));
+
+      const order = allOrders.find((o) => String(o.id ?? o.orderId) === String(id));
       if (!order) return;
+
+      if (action === "chat") {
+        if (String(order.status || "").toUpperCase() === "CANCELLED") {
+          alert("Chat is not available for cancelled orders.");
+          return;
+        }
+        openOrderChat(order.id ?? order.orderId);
+        return;
+      }
 
       if (action === "quote") openQuote(order);
       if (action === "status") openStatus(order);
       if (action === "details") openDetails(order);
     });
 
-    // quote submit
+    // Quote submit
     els.quoteForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       setMsg(els.quoteMsg, "");
@@ -426,13 +415,13 @@
         await window.OrderStore.quoteOrder(orderId, { price, deliveryDays, note });
         setMsg(els.quoteMsg, "✅ Quote sent!", "success");
         await loadOrders();
-        setTimeout(() => quoteModal.hide(), 400);
+        setTimeout(() => quoteModal?.hide(), 400);
       } catch (err) {
         setMsg(els.quoteMsg, `❌ ${err.message || err}`, "error");
       }
     });
 
-    // status submit
+    // Status submit
     els.statusForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       setMsg(els.statusMsg, "");
@@ -451,7 +440,7 @@
         await window.OrderStore.updateStatus(orderId, status, note);
         setMsg(els.statusMsg, "✅ Status updated!", "success");
         await loadOrders();
-        setTimeout(() => statusModal.hide(), 400);
+        setTimeout(() => statusModal?.hide(), 400);
       } catch (err) {
         setMsg(els.statusMsg, `❌ ${err.message || err}`, "error");
       }
@@ -463,10 +452,12 @@
 
   init().catch((err) => {
     console.error(err);
-    els.wrap.innerHTML = `
-      <div class="alert alert-danger">
-        Failed to load orders. Please refresh.
-      </div>
-    `;
+    if (els.wrap) {
+      els.wrap.innerHTML = `
+        <div class="alert alert-danger">
+          Failed to load orders. Please refresh.
+        </div>
+      `;
+    }
   });
 })();

@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---- LOGIN GUARD (customer only) ----
   const currentUser = window.AuthStore?.getCurrentUser?.();
   if (!currentUser || String(currentUser.role || "").toLowerCase() !== "customer") {
-    // ✅ FIX: use full URL so GoLive always returns correctly
     const redirectTo = encodeURIComponent(window.location.href);
     window.location.href = `login.html?redirect=${redirectTo}`;
     return;
@@ -181,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- Submit ----------
   const submitBtn = document.getElementById("orderSubmit");
+
   submitBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
 
@@ -194,8 +194,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const fabricOption =
       document.querySelector("input[name='orderFabricOption']:checked")?.value || "customer";
 
-    const preferredDate = document.getElementById("orderPreferredDate")?.value || null;
-    const preferredTimeSlot = document.getElementById("orderPreferredTime")?.value || "any";
+    // ✅ OPTION B FIX (match your HTML ids)
+    const preferredDate = document.getElementById("orderDeliveryDate")?.value || null;
+    const preferredTimeSlot = document.getElementById("orderTimeSlot")?.value || "any";
 
     const designNotes = document.getElementById("orderDesignNotes")?.value?.trim() || "";
 
@@ -209,8 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         : {};
 
-    const designImageUrl = null;
-
     const payload = {
       userId: Number(currentUser.id) || currentUser.id,
       tailorId: Number(tailorId),
@@ -222,48 +221,58 @@ document.addEventListener("DOMContentLoaded", () => {
       preferredDate,
       preferredTimeSlot,
       designNotes,
-      designImageUrl,
+      designImageUrl: null,
     };
 
     try {
       submitBtn.disabled = true;
       submitBtn.textContent = "Submitting...";
 
-      const data = await (window.AuthStore?.apiFetch
-        ? window.AuthStore.apiFetch("/api/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
-        : fetch("http://localhost:5000/api/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }).then((r) => r.json()));
+      // ✅ Use OrderStore if present (best) else fallback to raw fetch
+      let data;
+      if (window.OrderStore?.createOrderRequest) {
+        data = await window.OrderStore.createOrderRequest(payload);
+      } else {
+        const base = window.API_BASE_URL || "http://localhost:3000";
+        const res = await fetch(`${base}/api/orders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error || data?.message || "Failed to submit order");
+      }
 
       wrapper?.classList.add("d-none");
       successSection?.classList.remove("d-none");
 
+      // try to show id if returned
+      const createdId = data?.id ?? data?.order?.id ?? data?._id ?? data?.order?._id ?? null;
       const orderIdEl = document.getElementById("orderSuccessId");
-      if (orderIdEl && data?.order?.id) orderIdEl.textContent = `Order #${data.order.id}`;
+      if (orderIdEl && createdId) orderIdEl.textContent = `Order #${createdId}`;
     } catch (err) {
       console.error(err);
       alert(err.message || "Failed to submit order. Please try again.");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Order";
+      submitBtn.textContent = "Send Request to Tailor";
     }
   });
 
   setStep(1);
   setMeasurementMode("tailor");
 
+  // Load tailor specializations into garment dropdown
   (async function loadTailorSpecializations() {
     try {
       if (!garmentSelect) return;
-      const res = await fetch(`http://localhost:5000/api/tailors/${tailorId}`);
+
+      const base = window.API_BASE_URL || "http://localhost:3000";
+      const res = await fetch(`${base}/api/tailors/${encodeURIComponent(tailorId)}`);
       if (!res.ok) return;
-      const tailor = await res.json();
+
+      const tailor = await res.json().catch(() => null);
+      if (!tailor) return;
 
       if (Array.isArray(tailor.specializations) && tailor.specializations.length) {
         garmentSelect.innerHTML = `<option value="">Select garment type</option>`;

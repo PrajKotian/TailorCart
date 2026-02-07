@@ -227,9 +227,17 @@
                     Request Custom Order
                   </a>
 
-                  <button class="btn btn-outline-secondary btn-sm">
-                    Chat with Tailor (coming soon)
+                  <!-- ✅ ENABLED CHAT BUTTON -->
+                  <button
+                    id="tpChatBtn"
+                    class="btn btn-outline-secondary btn-sm"
+                    type="button"
+                  >
+                    Chat with Tailor
                   </button>
+
+                  <!-- ✅ tiny helper text (safe, doesn’t disturb layout) -->
+                  <div class="small text-muted" id="tpChatHint"></div>
                 </div>
               </div>
             </div>
@@ -382,6 +390,9 @@
     <!-- Custom JS -->
     <script src="../scripts/navbar-auth.js"></script>
     <script src="../scripts/main.js"></script>
+
+    <!-- ✅ NEW: enables chat from this page -->
+    <script src="../scripts/tailor-profile-chat.js"></script>
 
     <!-- ✅ IMPORTANT: NO GUARD HERE (public tailor profile must be accessible) -->
   </body>

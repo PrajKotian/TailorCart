@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TailorCart | Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Theme -->
+    <link rel="stylesheet" href="../styles/style.css" />
+
+    <style>
+      .tc-page {
+        background: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tc-chat-shell {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tc-chat-card {
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        background: #fff;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 110px);
+      }
+
+      @media (max-width: 768px) {
+        .tc-chat-card {
+          height: calc(100vh - 96px);
+          border-radius: 14px;
+        }
+      }
+
+      .tc-chat-head {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+      }
+
+      .tc-muted {
+        color: rgba(15, 23, 42, 0.65);
+      }
+
+      .tc-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: rgba(217, 119, 6, 0.12);
+        border: 1px solid rgba(217, 119, 6, 0.25);
+        font-weight: 700;
+        color: rgba(15, 23, 42, 0.9);
+        flex: 0 0 auto;
+      }
+
+      .tc-chat-body {
+        flex: 1;
+        padding: 14px;
+        overflow: auto;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.02), rgba(15, 23, 42, 0.01));
+      }
+
+      .tc-bubble {
+        max-width: 78%;
+        padding: 10px 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
+      }
+
+      .tc-bubble.me {
+        margin-left: auto;
+        background: rgba(217, 119, 6, 0.10);
+        border-color: rgba(217, 119, 6, 0.20);
+      }
+
+      .tc-bubble .tc-time {
+        font-size: 12px;
+        color: rgba(15, 23, 42, 0.55);
+        margin-top: 6px;
+      }
+
+      .tc-msg-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .tc-msg-row.me {
+        justify-content: flex-end;
+      }
+
+      .tc-attach {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        background: #fff;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .tc-attach:hover {
+        background: rgba(15, 23, 42, 0.02);
+      }
+
+      .tc-chat-foot {
+        padding: 12px 12px;
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+        background: #fff;
+      }
+
+      .tc-input {
+        border-radius: 14px;
+      }
+
+      .tc-file {
+        display: none;
+      }
+
+      .tc-mini {
+        font-size: 13px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="tc-page">
+      <!-- NAVBAR (same as your other pages) -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar">
+        <div class="container">
+          <a class="navbar-brand fw-bold brand-logo" href="index.html">Tailor Cart</a>
+
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="index.html#categories">Categories</a></li>
+              <li class="nav-item"><a class="nav-link" href="tailors.html">Find Tailors</a></li>
+              <li class="nav-item"><a class="nav-link" href="index.html#how-it-works">How It Works</a></li>
+              <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+            </ul>
+
+            <!-- Guest -->
+            <div class="d-flex gap-2 align-items-center" id="navGuest">
+              <a href="login.html" class="btn btn-link text-decoration-none nav-link-btn">Sign In</a>
+              <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor tc-magnetic">Join as Tailor</a>
+            </div>
+
+            <!-- Auth -->
+            <div class="d-none" id="navAuth">
+              <div class="nav-auth-wrap">
+                <div class="dropdown">
+                  <button class="btn nav-user-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <span class="nav-user-pill">
+                      <span class="nav-user-dot"></span>
+                      <span class="nav-user-text">Hi, <span id="navUserName">User</span></span>
+                    </span>
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                    <li>
+                      <div class="tc-dd__head">
+                        <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                        <div>
+                          <p class="tc-dd__name mb-0" id="navUserNameMenu">User</p>
+                          <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                        </div>
+                      </div>
+                    </li>
+
+                    <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                    <li>
+                      <a class="dropdown-item" href="customer-inbox.html">
+                        <span class="tc-dd__ico">💬</span><span>Messages</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="customer-dashboard.html">
+                        <span class="tc-dd__ico">🧾</span><span>My Orders</span>
+                      </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+
+                    <li>
+                      <button class="dropdown-item text-danger" id="navLogoutBtn" type="button">
+                        <span class="tc-dd__ico">⎋</span><span>Logout</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <a href="tailors.html" class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic">
+                  + New Order
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="container py-3 tc-chat-shell">
+        <div class="tc-chat-card">
+          <!-- Header -->
+          <div class="tc-chat-head">
+            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+              <div class="d-flex align-items-center gap-3">
+                <button id="tcBackBtn" class="btn btn-outline-secondary btn-sm">← Back</button>
+
+                <div class="d-flex align-items-center gap-2">
+                  <div class="tc-avatar" id="tcAvatar">T</div>
+                  <div>
+                    <div class="fw-semibold" id="tcTitle">Chat</div>
+                    <div class="tc-mini tc-muted" id="tcSubtitle">Loading…</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tc-mini tc-muted">
+                You: <span class="fw-semibold" id="tcMe">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div class="tc-chat-body" id="tcChatBody">
+            <div class="small tc-muted">Loading messages…</div>
+          </div>
+
+          <!-- Composer -->
+          <div class="tc-chat-foot">
+            <div class="d-flex gap-2 align-items-center">
+              <button id="tcAttachBtn" class="btn btn-outline-secondary">📎</button>
+              <input id="tcFile" class="tc-file" type="file" />
+
+              <input
+                id="tcText"
+                class="form-control tc-input"
+                placeholder="Message…"
+                autocomplete="off"
+              />
+
+              <button id="tcSendBtn" class="btn btn-primary">Send</button>
+            </div>
+
+            <div class="small tc-muted mt-2" id="tcHint">
+              You can send photos/videos/files too.
+            </div>
+
+            <div class="small text-danger mt-2 d-none" id="tcErr"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared -->
+    <script src="../scripts/navbar-auth.js"></script>
+
+    <!-- Page -->
+    <script src="../scripts/customer-chat.js"></script>
+  </body>
+</html>

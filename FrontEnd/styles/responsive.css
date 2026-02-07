@@ -1,0 +1,12 @@
+/* ===== TailorCart Mobile Baseline ===== */
+html, body { width: 100%; overflow-x: hidden; }
+img { max-width: 100%; height: auto; }
+* { overflow-wrap: anywhere; word-break: break-word; }
+
+/* Better tap targets on phone */
+.btn, .form-control, .form-select { min-height: 44px; }
+
+/* Containers slightly tighter on phone */
+@media (max-width: 576px) {
+  .container { padding-left: 14px !important; padding-right: 14px !important; }
+}

@@ -33,17 +33,25 @@ function localSaveOrders(list) {
   localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(list));
 }
 
+function getApiBase() {
+  // ✅ Always prefer the configured base
+  const base = window.API_BASE_URL || "http://localhost:3000";
+  return String(base).replace(/\/$/, "");
+}
+
 async function api(path, options = {}) {
   // Prefer AuthStore helper if present
   if (window.AuthStore?.authFetch) return window.AuthStore.authFetch(path, options);
   if (window.AuthStore?.apiFetch) return window.AuthStore.apiFetch(path, options);
 
-  // fallback raw fetch
-  const base = "http://localhost:5000";
+  // ✅ fallback raw fetch uses API_BASE_URL (NOT hardcoded 5000)
+  const base = getApiBase();
+
   const res = await fetch(base + path, {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
   });
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || data?.message || "Request failed");
   return data;
@@ -119,7 +127,6 @@ const OrderStore = (function () {
   }
 
   // -------- Optional Local Fallback Methods --------
-  // (Useful while you’re still migrating screens; can be removed later)
 
   function localGetAllOrders() {
     return localLoadOrders();

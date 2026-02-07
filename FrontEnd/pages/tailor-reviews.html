@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TailorCart | Ratings & Reviews</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../styles/style.css" />
+
+    <!-- ✅ Guard first -->
+    <script src="../scripts/guards/tailor-guard.js"></script>
+
+    <style>
+      .tc-page {
+        background: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex: 1;
+      }
+      .tc-card {
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+      }
+      .tc-card-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        background: rgba(15, 23, 42, 0.02);
+      }
+      .tc-card-body {
+        padding: 16px;
+      }
+      .tc-big {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .tc-muted {
+        color: rgba(15, 23, 42, 0.65);
+      }
+      .tc-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: rgba(217, 119, 6, 0.12);
+        border: 1px solid rgba(217, 119, 6, 0.25);
+        font-size: 18px;
+      }
+      .tc-review {
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 16px;
+        padding: 14px;
+        background: #fff;
+      }
+      .tc-stars {
+        color: #f59e0b;
+        letter-spacing: 1px;
+      }
+      .tc-footer {
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+        background: rgba(15, 23, 42, 0.02);
+      }
+      .tc-footer a {
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="tc-page">
+      <!-- NAVBAR (copied from your tailor-dashboard.html) -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top tc-navbar">
+        <div class="container">
+          <a class="navbar-brand fw-bold brand-logo" href="index.html">Tailor Cart</a>
+
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="index.html#categories">Categories</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="tailors.html">Find Tailors</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="index.html#how-it-works">How It Works</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="about.html">About Us</a>
+              </li>
+            </ul>
+
+            <div class="d-flex gap-2 align-items-center" id="navGuest">
+              <a href="login.html" class="btn btn-link text-decoration-none nav-link-btn">Sign In</a>
+              <a href="signup-tailor.html" class="btn btn-primary btn-join-tailor tc-magnetic">Join as Tailor</a>
+            </div>
+
+            <div class="d-none" id="navAuth">
+              <div class="nav-auth-wrap">
+                <div class="dropdown">
+                  <button
+                    class="btn nav-user-btn dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                  >
+                    <span class="nav-user-pill">
+                      <span class="nav-user-dot"></span>
+                      <span class="nav-user-text">Hi, <span id="navUserName">User</span></span>
+                    </span>
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-end tc-dd">
+                    <li>
+                      <div class="tc-dd__head">
+                        <div class="tc-dd__avatar" id="navUserAvatar">U</div>
+                        <div>
+                          <p class="tc-dd__name mb-0" id="navUserNameMenu">User</p>
+                          <p class="tc-dd__meta mb-0">Tailor Cart Account</p>
+                        </div>
+                      </div>
+                    </li>
+
+                    <li><div class="tc-dd__label">Quick Actions</div></li>
+
+                    <li>
+                      <a class="dropdown-item" href="tailor-dashboard.html">
+                        <span class="tc-dd__ico">👤</span><span>My Profile</span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a class="dropdown-item" href="tailor-orders.html">
+                        <span class="tc-dd__ico">🧾</span><span>My Orders</span>
+                      </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+
+                    <li>
+                      <button class="dropdown-item text-danger" id="navLogoutBtn" type="button">
+                        <span class="tc-dd__ico">⎋</span><span>Logout</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <a
+                  href="tailor-orders.html"
+                  class="btn btn-primary btn-join-tailor nav-neworder-btn tc-magnetic"
+                >
+                  View Requests
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- MAIN -->
+      <main class="container py-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <h3 class="mb-1">Ratings & Reviews</h3>
+            <p class="tc-muted mb-0">
+              Customers can review only after an order is <b>Delivered</b>.
+            </p>
+          </div>
+          <a href="tailor-dashboard.html" class="btn btn-outline-secondary">← Back</a>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <div class="tc-card h-100">
+              <div class="tc-card-header small tc-muted">Average Rating</div>
+              <div class="tc-card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="tc-big" id="trAvg">—</div>
+                    <div class="small tc-muted">out of 5</div>
+                  </div>
+                  <div class="tc-icon">⭐</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="tc-card h-100">
+              <div class="tc-card-header small tc-muted">Total Reviews</div>
+              <div class="tc-card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="tc-big" id="trCount">—</div>
+                    <div class="small tc-muted">received</div>
+                  </div>
+                  <div class="tc-icon">🧾</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="tc-card h-100">
+              <div class="tc-card-header small tc-muted">Tip</div>
+              <div class="tc-card-body">
+                <div class="fw-semibold mb-1">Boost your rating</div>
+                <div class="small tc-muted">
+                  Clear pricing + timely updates + perfect fitting = better reviews.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REVIEWS LIST -->
+        <div class="tc-card mt-3">
+          <div class="tc-card-header d-flex align-items-center justify-content-between">
+            <span class="small tc-muted">Customer Reviews</span>
+            <button class="btn btn-sm btn-outline-secondary" id="trRefreshBtn">Refresh</button>
+          </div>
+
+          <div class="tc-card-body">
+            <div id="trList">
+              <p class="small text-muted mb-0">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3" id="trNotice" style="display:none;"></div>
+      </main>
+
+      <!-- FOOTER (new, consistent + clean) -->
+      <footer class="tc-footer py-4">
+        <div class="container">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+              <div class="fw-semibold">Tailor Cart</div>
+              <div class="small tc-muted">
+                Helping customers connect with trusted local tailors.
+              </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <a class="small tc-muted me-3" href="about.html">About</a>
+              <a class="small tc-muted me-3" href="tailor-orders.html">Orders</a>
+              <a class="small tc-muted" href="tailor-dashboard.html">Dashboard</a>
+              <div class="small tc-muted mt-2">© <span id="trYear"></span> Tailor Cart</div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Shared scripts -->
+    <script src="../scripts/navbar-auth.js"></script>
+
+    <!-- Page script (YOU WILL ADD THIS FILE NEXT) -->
+    <script src="../scripts/tailor-reviews.js"></script>
+
+    <script>
+      document.getElementById("trYear").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

@@ -1,14 +1,8 @@
-// BackEnd/models/dataStore.js
+// BackEnd/seed/seedTailors.js
+require("dotenv").config();
+const connectDB = require("../config/db");
+const Tailor = require("../models/Tailor");
 
-// TEMPORARY IN-MEMORY DATA
-// Later we can replace this with a real database (MongoDB, SQL, etc.)
-
-// Users: customers, tailors, admins
-// NOTE: password is plain text NOW (for learning),
-// later we will hash it using bcrypt.
-const users = [];
-
-// Tailors: profiles used for "Find Tailors" + "Tailor Profile" pages
 const tailors = [
   {
     id: 1,
@@ -21,6 +15,7 @@ const tailors = [
     about:
       "Specialist in bridal blouses and lehengas with detailed handwork and perfect fitting.",
     rating: 4.8,
+    gender: "male",
     services: [
       {
         title: "Bridal Saree Blouse Stitching",
@@ -63,6 +58,7 @@ const tailors = [
     about:
       "Creates modern ethnic and Indo-western outfits with a focus on comfort and clean silhouettes.",
     rating: 4.9,
+    gender: "female",
     services: [
       {
         title: "Designer Salwar Suit Stitching",
@@ -105,6 +101,7 @@ const tailors = [
     about:
       "Known for regal sherwanis and traditional menswear with intricate embroidery and rich fabrics.",
     rating: 4.7,
+    gender: "male",
     services: [
       {
         title: "Wedding Sherwani Stitching",
@@ -124,15 +121,13 @@ const tailors = [
         title: "Embroidery Work (Kurta & Sherwani)",
         priceFrom: 1200,
         duration: "5–7 days",
-        description:
-          "Hand and machine embroidery on collars, cuffs and front panels.",
+        description: "Hand and machine embroidery on collars, cuffs and front panels.",
       },
       {
         title: "Traditional Kurta Pajama Set",
         priceFrom: 1500,
         duration: "5–7 days",
-        description:
-          "Classic kurta pajama stitching with comfortable yet royal look.",
+        description: "Classic kurta pajama stitching with comfortable yet royal look.",
       },
     ],
   },
@@ -147,6 +142,7 @@ const tailors = [
     about:
       "Designs elegant lehengas and evening gowns with a contemporary touch for events and parties.",
     rating: 4.6,
+    gender: "female",
     services: [
       {
         title: "Cocktail Gown Stitching",
@@ -182,34 +178,31 @@ const tailors = [
     about:
       "Tailors sharp, well-fitted suits and blazers for office, functions and special occasions.",
     rating: 4.5,
+    gender: "male",
     services: [
       {
         title: "Two-Piece Suit Stitching",
         priceFrom: 3500,
         duration: "10–14 days",
-        description:
-          "Custom tailored suits for office wear, meetings and interviews.",
+        description: "Custom tailored suits for office wear, meetings and interviews.",
       },
       {
         title: "Three-Piece Suit Stitching",
         priceFrom: 4500,
         duration: "12–16 days",
-        description:
-          "Full three-piece suits with waistcoat, ideal for receptions and events.",
+        description: "Full three-piece suits with waistcoat, ideal for receptions and events.",
       },
       {
         title: "Blazer Stitching",
         priceFrom: 2500,
         duration: "7–10 days",
-        description:
-          "Single and double-breasted blazers with precise fitting and neat finishing.",
+        description: "Single and double-breasted blazers with precise fitting and neat finishing.",
       },
       {
         title: "Formal Trouser Stitching",
         priceFrom: 900,
         duration: "4–6 days",
-        description:
-          "Well-fitted formal trousers with clean creases and comfortable waistbands.",
+        description: "Well-fitted formal trousers with clean creases and comfortable waistbands.",
       },
     ],
   },
@@ -224,34 +217,31 @@ const tailors = [
     about:
       "Offers neatly finished blouses, kidswear and quick alterations with reliable turnaround time.",
     rating: 4.6,
+    gender: "female",
     services: [
       {
         title: "Daily Wear Blouse Stitching",
         priceFrom: 600,
         duration: "3–5 days",
-        description:
-          "Comfortable daily wear blouses with simple and neat finishing.",
+        description: "Comfortable daily wear blouses with simple and neat finishing.",
       },
       {
         title: "Kids Frock / Dress Stitching",
         priceFrom: 800,
         duration: "4–6 days",
-        description:
-          "Cute and comfortable dresses, frocks and sets for kids of all ages.",
+        description: "Cute and comfortable dresses, frocks and sets for kids of all ages.",
       },
       {
         title: "School Uniform Stitching",
         priceFrom: 750,
         duration: "5–7 days",
-        description:
-          "Properly measured school uniforms for kids with durable stitching.",
+        description: "Properly measured school uniforms for kids with durable stitching.",
       },
       {
         title: "Quick Alterations",
         priceFrom: 150,
         duration: "1–2 days",
-        description:
-          "Pant length, waist tightening, blouse and kurta fitting adjustments.",
+        description: "Pant length, waist tightening, blouse and kurta fitting adjustments.",
       },
     ],
   },
@@ -266,13 +256,13 @@ const tailors = [
     about:
       "Focuses on traditional menswear with royal sherwanis and well-fitted kurtas for weddings and festivals.",
     rating: 4.7,
+    gender: "male",
     services: [
       {
         title: "Wedding Sherwani Stitching",
         priceFrom: 4200,
         duration: "12–16 days",
-        description:
-          "Rich sherwanis with traditional Lucknowi styling for weddings and receptions.",
+        description: "Rich sherwanis with traditional Lucknowi styling for weddings and receptions.",
       },
       {
         title: "Pathani Set Stitching",
@@ -284,8 +274,7 @@ const tailors = [
         title: "Kurta Pajama Set",
         priceFrom: 1400,
         duration: "5–7 days",
-        description:
-          "Classic kurta pajama sets ideal for poojas and family functions.",
+        description: "Classic kurta pajama sets ideal for poojas and family functions.",
       },
     ],
   },
@@ -300,6 +289,7 @@ const tailors = [
     about:
       "Popular for colourful Navratri outfits and stylish lehengas with comfortable fits.",
     rating: 4.5,
+    gender: "female",
     services: [
       {
         title: "Garba Chaniya Choli Stitching",
@@ -312,15 +302,13 @@ const tailors = [
         title: "Navratri Lehenga Stitching",
         priceFrom: 2200,
         duration: "8–12 days",
-        description:
-          "Light and heavy lehengas with traditional Gujarati styling.",
+        description: "Light and heavy lehengas with traditional Gujarati styling.",
       },
       {
         title: "Designer Blouse Stitching",
         priceFrom: 900,
         duration: "4–6 days",
-        description:
-          "Festive blouses with trendy backs, tassels and dori designs.",
+        description: "Festive blouses with trendy backs, tassels and dori designs.",
       },
     ],
   },
@@ -335,27 +323,25 @@ const tailors = [
     about:
       "Blends Rajasthani royal style with modern cuts for bandhgala suits and sherwanis.",
     rating: 4.8,
+    gender: "male",
     services: [
       {
         title: "Bandhgala Suit Stitching",
         priceFrom: 3800,
         duration: "10–14 days",
-        description:
-          "Royal bandhgala suits with Rajasthani detailing for receptions and formal events.",
+        description: "Royal bandhgala suits with Rajasthani detailing for receptions and formal events.",
       },
       {
         title: "Sherwani Stitching",
         priceFrom: 4200,
         duration: "12–16 days",
-        description:
-          "Elegant sherwanis with subtle embroidery and premium fabrics.",
+        description: "Elegant sherwanis with subtle embroidery and premium fabrics.",
       },
       {
         title: "Formal Shirt & Trouser Combo",
         priceFrom: 2000,
         duration: "7–10 days",
-        description:
-          "Custom formal shirts and trousers tailored to your measurements.",
+        description: "Custom formal shirts and trousers tailored to your measurements.",
       },
     ],
   },
@@ -370,27 +356,25 @@ const tailors = [
     about:
       "Designs modest yet stylish outfits including abayas and evening gowns with soft drapes.",
     rating: 4.4,
+    gender: "female",
     services: [
       {
         title: "Everyday Abaya Stitching",
         priceFrom: 1200,
         duration: "5–7 days",
-        description:
-          "Comfortable abayas with simple cuts suitable for daily wear.",
+        description: "Comfortable abayas with simple cuts suitable for daily wear.",
       },
       {
         title: "Embellished Abaya Stitching",
         priceFrom: 1800,
         duration: "7–10 days",
-        description:
-          "Abayas with lace, embroidery and subtle embellishments for special occasions.",
+        description: "Abayas with lace, embroidery and subtle embellishments for special occasions.",
       },
       {
         title: "Evening Gown Stitching",
         priceFrom: 2600,
         duration: "10–14 days",
-        description:
-          "Soft, flowy gowns with modest necklines and graceful drapes.",
+        description: "Soft, flowy gowns with modest necklines and graceful drapes.",
       },
     ],
   },
@@ -405,27 +389,25 @@ const tailors = [
     about:
       "Experienced designer known for bridal trousseau, reception gowns and heavy designer blouses.",
     rating: 4.9,
+    gender: "female",
     services: [
       {
         title: "Bridal Lehenga Stitching",
         priceFrom: 5000,
         duration: "15–20 days",
-        description:
-          "Premium bridal lehengas with heavy work, can-can and full finishing.",
+        description: "Premium bridal lehengas with heavy work, can-can and full finishing.",
       },
       {
         title: "Heavy Designer Blouse Stitching",
         priceFrom: 1600,
         duration: "7–10 days",
-        description:
-          "Blouses with intricate work, suitable for bridal and reception sarees.",
+        description: "Blouses with intricate work, suitable for bridal and reception sarees.",
       },
       {
         title: "Reception Gown Stitching",
         priceFrom: 3200,
         duration: "12–16 days",
-        description:
-          "Elegant Western and Indo-western gowns for receptions and cocktail nights.",
+        description: "Elegant Western and Indo-western gowns for receptions and cocktail nights.",
       },
     ],
   },
@@ -440,27 +422,25 @@ const tailors = [
     about:
       "Specialises in crisp office shirts and trousers with clean cuts and neat finishing.",
     rating: 4.3,
+    gender: "male",
     services: [
       {
         title: "Formal Shirt Stitching",
         priceFrom: 900,
         duration: "4–6 days",
-        description:
-          "Office shirts with sharp collars and perfect sleeve lengths.",
+        description: "Office shirts with sharp collars and perfect sleeve lengths.",
       },
       {
         title: "Office Trouser Stitching",
         priceFrom: 950,
         duration: "5–7 days",
-        description:
-          "Trousers with clean cuts and comfortable waist fits for daily office wear.",
+        description: "Trousers with clean cuts and comfortable waist fits for daily office wear.",
       },
       {
         title: "Alterations (Shirts & Trousers)",
         priceFrom: 200,
         duration: "1–2 days",
-        description:
-          "Length adjustments, waist tightening and general fitting corrections.",
+        description: "Length adjustments, waist tightening and general fitting corrections.",
       },
     ],
   },
@@ -475,27 +455,25 @@ const tailors = [
     about:
       "Creates comfortable daily wear suits and stylish blouses for working women and students.",
     rating: 4.4,
+    gender: "female",
     services: [
       {
         title: "Daily Wear Salwar Suit Stitching",
         priceFrom: 900,
         duration: "4–6 days",
-        description:
-          "Simple and comfortable salwar suits for everyday and office use.",
+        description: "Simple and comfortable salwar suits for everyday and office use.",
       },
       {
         title: "College & Office Blouse Stitching",
         priceFrom: 650,
         duration: "3–5 days",
-        description:
-          "Blouses with practical yet stylish designs for regular saree wearers.",
+        description: "Blouses with practical yet stylish designs for regular saree wearers.",
       },
       {
         title: "Kids Wear Sets",
         priceFrom: 800,
         duration: "4–6 days",
-        description:
-          "Comfortable frocks, tops and sets for kids with soft finishing.",
+        description: "Comfortable frocks, tops and sets for kids with soft finishing.",
       },
     ],
   },
@@ -510,27 +488,25 @@ const tailors = [
     about:
       "Young tailor who focuses on trendy streetwear, casual shirts and perfect denim alterations.",
     rating: 4.2,
+    gender: "male",
     services: [
       {
         title: "Casual Shirt Stitching",
         priceFrom: 800,
         duration: "4–6 days",
-        description:
-          "Trendy casual shirts with slim fits and modern styling.",
+        description: "Trendy casual shirts with slim fits and modern styling.",
       },
       {
         title: "Jeans Alteration",
         priceFrom: 250,
         duration: "1–3 days",
-        description:
-          "Length, waist and taper adjustments for denim and casual trousers.",
+        description: "Length, waist and taper adjustments for denim and casual trousers.",
       },
       {
         title: "Streetwear Co-ord Sets",
         priceFrom: 1400,
         duration: "6–9 days",
-        description:
-          "Matching co-ord sets with relaxed fits and streetwear aesthetics.",
+        description: "Matching co-ord sets with relaxed fits and streetwear aesthetics.",
       },
     ],
   },
@@ -545,27 +521,25 @@ const tailors = [
     about:
       "Known for graceful bridal lehengas and reception gowns with balanced flair and comfort.",
     rating: 4.7,
+    gender: "female",
     services: [
       {
         title: "Bridal Lehenga Stitching",
         priceFrom: 4800,
         duration: "15–20 days",
-        description:
-          "Graceful bridal lehengas with balanced flair, can-can and detailed can-finishing.",
+        description: "Graceful bridal lehengas with balanced flair, can-can and detailed finishing.",
       },
       {
         title: "Engagement / Sangeet Gown",
         priceFrom: 3000,
         duration: "12–16 days",
-        description:
-          "Gowns with modern silhouettes and comfortable movement.",
+        description: "Gowns with modern silhouettes and comfortable movement.",
       },
       {
         title: "Bridesmaid Lehenga Stitching",
         priceFrom: 2600,
         duration: "10–14 days",
-        description:
-          "Coordinated yet unique lehengas for bridesmaids and close family.",
+        description: "Coordinated yet unique lehengas for bridesmaids and close family.",
       },
     ],
   },
@@ -580,20 +554,19 @@ const tailors = [
     about:
       "Offers made-to-measure suits and blazers for corporate events, interviews and functions.",
     rating: 4.5,
+    gender: "male",
     services: [
       {
         title: "Corporate Suit Stitching",
         priceFrom: 3400,
         duration: "10–14 days",
-        description:
-          "Professional suits tailored for corporate environments and client meetings.",
+        description: "Professional suits tailored for corporate environments and client meetings.",
       },
       {
         title: "Blazer with Trouser Set",
         priceFrom: 3800,
         duration: "12–16 days",
-        description:
-          "Coordinated blazer and trouser sets with precise fitting.",
+        description: "Coordinated blazer and trouser sets with precise fitting.",
       },
       {
         title: "Formal Shirt Stitching",
@@ -614,13 +587,13 @@ const tailors = [
     about:
       "Focuses on comfortable daily and office wear with simple yet elegant designs.",
     rating: 4.3,
+    gender: "female",
     services: [
       {
         title: "Office Salwar Suit Stitching",
         priceFrom: 850,
         duration: "4–6 days",
-        description:
-          "Simple, easy-to-maintain suits perfect for office-goers.",
+        description: "Simple, easy-to-maintain suits perfect for office-goers.",
       },
       {
         title: "Daily Wear Blouse Stitching",
@@ -647,6 +620,7 @@ const tailors = [
     about:
       "Creates festive kurta sets and Nehru jackets that are popular for poojas and family functions.",
     rating: 4.4,
+    gender: "male",
     services: [
       {
         title: "Festive Kurta Pajama Stitching",
@@ -679,13 +653,13 @@ const tailors = [
     about:
       "Specialises in flowy Anarkalis, palazzo suits and Punjabi-style lehengas with rich fabrics.",
     rating: 4.6,
+    gender: "female",
     services: [
       {
         title: "Anarkali Suit Stitching",
         priceFrom: 1600,
         duration: "7–10 days",
-        description:
-          "Flared Anarkali suits with rich ghera and perfect flair.",
+        description: "Flared Anarkali suits with rich ghera and perfect flair.",
       },
       {
         title: "Palazzo Suit Stitching",
@@ -697,8 +671,7 @@ const tailors = [
         title: "Punjabi Lehenga Stitching",
         priceFrom: 2600,
         duration: "10–14 days",
-        description:
-          "Punjabi-style lehengas with heavy borders and traditional looks.",
+        description: "Punjabi-style lehengas with heavy borders and traditional looks.",
       },
     ],
   },
@@ -713,96 +686,42 @@ const tailors = [
     about:
       "Offers tailored suits and formal shirts with subtle South-Indian styling for weddings and events.",
     rating: 4.7,
+    gender: "male",
     services: [
       {
         title: "Wedding Suit Stitching",
         priceFrom: 3800,
         duration: "10–14 days",
-        description:
-          "Wedding suits with subtle South-Indian styling and premium fabrics.",
+        description: "Wedding suits with subtle South-Indian styling and premium fabrics.",
       },
       {
         title: "Formal Shirt Stitching",
         priceFrom: 950,
         duration: "4–6 days",
-        description:
-          "Formal shirts tailored for both office and events.",
+        description: "Formal shirts tailored for both office and events.",
       },
       {
         title: "Semi-Formal Blazer",
         priceFrom: 2600,
         duration: "7–10 days",
-        description:
-          "Blazers that work for office dinners, receptions and parties.",
+        description: "Blazers that work for office dinners, receptions and parties.",
       },
     ],
   },
 ];
 
-// -------------------- ORDER STORE --------------------
-const orders = [
-  // orders are created by API; keeping empty by default
-];
+async function seed() {
+  await connectDB();
 
-let nextUserId = 1;
-let nextTailorId = tailors.length + 1;
-let nextOrderId = orders.length + 1;
+  // dev only: reset collection
+  await Tailor.deleteMany({});
+  await Tailor.insertMany(tailors);
 
-// -------------------- REVIEWS STORE --------------------
-// One review per DELIVERED order. No edits after submit.
-const reviews = [];
-let nextReviewId = 1;
-
-// Compute avg rating + total reviews from real reviews
-// If no reviews: fallback to tailor.rating (seed rating)
-function getTailorStats(tailorId) {
-  const id = Number(tailorId);
-  const list = reviews.filter((r) => Number(r.tailorId) === id);
-  const reviewsCount = list.length;
-
-  if (!reviewsCount) {
-    const t = tailors.find((x) => Number(x.id) === id);
-    const seed = Number(t?.rating ?? 0);
-    return { avgRating: seed || 0, reviewsCount: 0 };
-  }
-
-  const sum = list.reduce((acc, r) => acc + Number(r.rating || 0), 0);
-  const avgRating = Math.round((sum / reviewsCount) * 10) / 10; // 1 decimal
-  return { avgRating, reviewsCount };
+  console.log(`✅ Tailors seeded successfully: ${tailors.length}`);
+  process.exit(0);
 }
 
-// -------------------- ✅ CHAT STORE --------------------
-// Conversations are either:
-// - INQUIRY (customer <-> tailor, no order yet)
-// - ORDER   (customer <-> tailor, tied to orderId)
-// - TAILOR_DM (tailor <-> tailor)
-const conversations = [];
-const messages = [];
-let nextConversationId = 1;
-let nextMessageId = 1;
-
-module.exports = {
-  users,
-  tailors,
-  orders,
-  reviews,
-
-  // ✅ NEW exports
-  conversations,
-  messages,
-
-  nextIds: {
-    getNextUserId: () => nextUserId++,
-    getNextTailorId: () => nextTailorId++,
-    getNextOrderId: () => nextOrderId++,
-    getNextReviewId: () => nextReviewId++,
-
-    // ✅ NEW
-    getNextConversationId: () => nextConversationId++,
-    getNextMessageId: () => nextMessageId++,
-  },
-
-  helpers: {
-    getTailorStats,
-  },
-};
+seed().catch((e) => {
+  console.error("❌ Seeding failed:", e);
+  process.exit(1);
+});

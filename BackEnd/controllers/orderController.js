@@ -1,275 +1,346 @@
 // BackEnd/controllers/orderController.js
-const { orders, nextIds, tailors } = require("../models/dataStore");
+const Order = require("../models/Order");
+const Tailor = require("../models/Tailor");
 
-// Helpers
 const nowISO = () => new Date().toISOString();
 
-const findOrderOr404 = (id, res) => {
-  const orderId = Number(id);
-  const order = orders.find((o) => o.id === orderId);
-  if (!order) {
-    res.status(404).json({ error: "Order not found" });
-    return null;
-  }
-  return order;
-};
+async function attachTailorSnapshots(orderDocs) {
+  const orders = Array.isArray(orderDocs) ? orderDocs : [orderDocs];
 
-const attachTailorSnapshot = (order) => {
-  const tailor = tailors.find((t) => t.id === Number(order.tailorId)) || null;
-  return { ...order, tailor };
-};
+  const tailorIds = Array.from(
+    new Set(
+      orders
+        .map((o) => Number(o.tailorId))
+        .filter((n) => Number.isFinite(n) && n > 0)
+    )
+  );
 
-const canCancel = (order) => !["DELIVERED", "CANCELLED"].includes(order.status);
+  const tailors = await Tailor.find({ id: { $in: tailorIds } }).lean();
+  const map = new Map(tailors.map((t) => [Number(t.id), t]));
+
+  return orders.map((o) => ({
+    ...o,
+    tailor: map.get(Number(o.tailorId)) || null,
+  }));
+}
+
+async function getNextOrderId() {
+  const last = await Order.findOne().sort({ id: -1 }).select("id").lean();
+  return (last?.id || 0) + 1;
+}
 
 // POST /api/orders  → create an order request (Customer)
-const createOrderRequest = (req, res) => {
-  const {
-    userId,
-    tailorId,
-    garmentType,
-    fabricOption,
-    measurementMethod,
-    measurements,
-    address,
-    preferredDate,
-    preferredTimeSlot,
-    designNotes,
-    designImageUrl,
-  } = req.body;
+const createOrderRequest = async (req, res) => {
+  try {
+    const {
+      userId,
+      tailorId,
+      garmentType,
+      fabricOption,
+      measurementMethod,
+      measurements,
+      address,
+      preferredDate,
+      preferredTimeSlot,
+      designNotes,
+      designImageUrl,
+    } = req.body;
 
-  if (!tailorId) return res.status(400).json({ error: "tailorId is required" });
-  if (!garmentType) return res.status(400).json({ error: "garmentType is required" });
-  if (!address) return res.status(400).json({ error: "delivery address is required" });
+    if (!tailorId) return res.status(400).json({ error: "tailorId is required" });
+    if (!garmentType) return res.status(400).json({ error: "garmentType is required" });
+    if (!address) return res.status(400).json({ error: "delivery address is required" });
 
-  const tailor = tailors.find((t) => t.id === Number(tailorId));
-  if (!tailor) return res.status(404).json({ error: "Tailor not found for given tailorId" });
+    const tId = Number(tailorId);
+    if (!Number.isFinite(tId)) return res.status(400).json({ error: "tailorId must be a number" });
 
-  const newOrder = {
-    id: nextIds.getNextOrderId(),
-    userId: userId || null,
-    tailorId: Number(tailorId),
+    const tailor = await Tailor.findOne({ id: tId }).lean();
+    if (!tailor) return res.status(404).json({ error: "Tailor not found for given tailorId" });
 
-    garmentType,
-    fabricOption: fabricOption || "customer", // customer|tailor
-    measurementMethod: measurementMethod || "tailor", // tailor|manual
-    measurements: measurements || {},
+    const newOrder = {
+      id: await getNextOrderId(),
+      userId: userId != null ? String(userId) : null,
+      tailorId: tId,
 
-    address,
-    preferredDate: preferredDate || null,
-    preferredTimeSlot: preferredTimeSlot || "any",
-    designNotes: designNotes || "",
-    designImageUrl: designImageUrl || null,
+      garmentType,
+      fabricOption: fabricOption || "customer",
+      measurementMethod: measurementMethod || "tailor",
+      measurements: measurements || {},
 
-    quote: {
-      price: null,
-      deliveryDays: null,
-      expectedDeliveryDate: null,
-      note: "",
-      quotedAt: null,
-    },
-    payments: {
-      advancePaid: 0,
-      totalPaid: 0,
-      currency: "INR",
-    },
+      address,
+      preferredDate: preferredDate || null,
+      preferredTimeSlot: preferredTimeSlot || "any",
 
-    status: "REQUESTED",
-    history: [{ status: "REQUESTED", note: "Order requested", at: nowISO() }],
-    createdAt: nowISO(),
-    updatedAt: nowISO(),
-  };
+      designNotes: designNotes || "",
+      designImageUrl: designImageUrl || null,
 
-  orders.push(newOrder);
+      quote: {
+        price: null,
+        deliveryDays: null,
+        expectedDeliveryDate: null,
+        note: "",
+        quotedAt: null,
+      },
+      payments: {
+        advancePaid: 0,
+        totalPaid: 0,
+        currency: "INR",
+      },
 
-  return res.status(201).json({
-    message: "Order request created successfully",
-    order: attachTailorSnapshot(newOrder),
-  });
+      status: "REQUESTED",
+      history: [{ status: "REQUESTED", note: "Order requested", at: nowISO() }],
+      createdAt: nowISO(),
+      updatedAt: nowISO(),
+    };
+
+    const created = await Order.create(newOrder);
+    const [withTailor] = await attachTailorSnapshots([created.toObject()]);
+
+    return res.status(201).json({
+      message: "Order request created successfully",
+      order: withTailor,
+    });
+  } catch (err) {
+    console.error("createOrderRequest error:", err);
+    return res.status(500).json({ error: "Failed to create order request" });
+  }
 };
 
 // GET /api/orders  → list all orders (admin/dev)
-// ✅ supports filters: /api/orders?userId=1 or /api/orders?tailorId=2
-const getAllOrders = (req, res) => {
-  const { userId, tailorId } = req.query;
+// supports filters: /api/orders?userId=xxx or /api/orders?tailorId=1
+const getAllOrders = async (req, res) => {
+  try {
+    const { userId, tailorId } = req.query;
 
-  let list = orders;
+    const q = {};
+    if (userId != null && userId !== "") q.userId = String(userId);
+    if (tailorId != null && tailorId !== "") q.tailorId = Number(tailorId);
 
-  if (userId != null && userId !== "") {
-    list = list.filter((o) => String(o.userId) === String(userId));
+    const list = await Order.find(q).sort({ id: -1 }).lean();
+    const withTailor = await attachTailorSnapshots(list);
+    res.json(withTailor);
+  } catch (err) {
+    console.error("getAllOrders error:", err);
+    return res.status(500).json({ error: "Failed to load orders" });
   }
-  if (tailorId != null && tailorId !== "") {
-    list = list.filter((o) => String(o.tailorId) === String(tailorId));
-  }
-
-  res.json(list.map(attachTailorSnapshot));
 };
 
 // GET /api/orders/:id → single order
-const getOrderById = (req, res) => {
-  const order = findOrderOr404(req.params.id, res);
-  if (!order) return;
-  res.json(attachTailorSnapshot(order));
+const getOrderById = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id }).lean();
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    const [withTailor] = await attachTailorSnapshots(order);
+    res.json(withTailor);
+  } catch (err) {
+    console.error("getOrderById error:", err);
+    return res.status(500).json({ error: "Failed to load order" });
+  }
 };
 
-// GET /api/orders/by-customer?userId=1
-const getOrdersByCustomer = (req, res) => {
-  const userId = req.query.userId;
-  if (!userId) return res.status(400).json({ error: "userId query param required" });
+// GET /api/orders/by-customer?userId=xxx
+const getOrdersByCustomer = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ error: "userId query param required" });
 
-  const list = orders
-    .filter((o) => String(o.userId) === String(userId))
-    .map(attachTailorSnapshot);
-
-  res.json(list);
+    const list = await Order.find({ userId: String(userId) }).sort({ id: -1 }).lean();
+    const withTailor = await attachTailorSnapshots(list);
+    res.json(withTailor);
+  } catch (err) {
+    console.error("getOrdersByCustomer error:", err);
+    return res.status(500).json({ error: "Failed to load customer orders" });
+  }
 };
 
 // GET /api/orders/by-tailor?tailorId=1
-const getOrdersByTailor = (req, res) => {
-  const tailorId = Number(req.query.tailorId);
-  if (!tailorId) return res.status(400).json({ error: "tailorId query param required" });
+const getOrdersByTailor = async (req, res) => {
+  try {
+    const tailorId = Number(req.query.tailorId);
+    if (!tailorId) return res.status(400).json({ error: "tailorId query param required" });
 
-  const list = orders.filter((o) => Number(o.tailorId) === tailorId).map(attachTailorSnapshot);
-  res.json(list);
+    const list = await Order.find({ tailorId }).sort({ id: -1 }).lean();
+    const withTailor = await attachTailorSnapshots(list);
+    res.json(withTailor);
+  } catch (err) {
+    console.error("getOrdersByTailor error:", err);
+    return res.status(500).json({ error: "Failed to load tailor orders" });
+  }
 };
 
 // POST /api/orders/:id/quote  (Tailor)
-const quoteOrder = (req, res) => {
-  const order = findOrderOr404(req.params.id, res);
-  if (!order) return;
+const quoteOrder = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
 
-  if (order.status === "CANCELLED") {
-    return res.status(400).json({ error: "Cannot quote a cancelled order" });
+    if (["CANCELLED", "DELIVERED"].includes(order.status)) {
+      return res.status(400).json({ error: `Cannot quote a ${order.status.toLowerCase()} order` });
+    }
+
+    const { price, deliveryDays, expectedDeliveryDate, note } = req.body;
+
+    if (price == null || Number(price) <= 0) {
+      return res.status(400).json({ error: "Valid price is required" });
+    }
+
+    order.quote.price = Number(price);
+    order.quote.deliveryDays = deliveryDays != null ? Number(deliveryDays) : null;
+    order.quote.expectedDeliveryDate = expectedDeliveryDate || null;
+    order.quote.note = note || "";
+    order.quote.quotedAt = nowISO();
+
+    order.status = "QUOTED";
+    order.history.push({ status: "QUOTED", note: "Quote sent", at: nowISO() });
+    order.updatedAt = nowISO();
+
+    await order.save();
+
+    const [withTailor] = await attachTailorSnapshots(order.toObject());
+    res.json({ message: "Order quoted successfully", order: withTailor });
+  } catch (err) {
+    console.error("quoteOrder error:", err);
+    return res.status(500).json({ error: "Failed to quote order" });
   }
-  if (order.status === "DELIVERED") {
-    return res.status(400).json({ error: "Cannot quote a delivered order" });
-  }
-
-  const { price, deliveryDays, expectedDeliveryDate, note } = req.body;
-
-  if (price == null || Number(price) <= 0) {
-    return res.status(400).json({ error: "Valid price is required" });
-  }
-
-  order.quote.price = Number(price);
-  order.quote.deliveryDays = deliveryDays != null ? Number(deliveryDays) : null;
-  order.quote.expectedDeliveryDate = expectedDeliveryDate || null;
-  order.quote.note = note || "";
-  order.quote.quotedAt = nowISO();
-
-  order.status = "QUOTED";
-  order.history.push({ status: "QUOTED", note: "Quote sent", at: nowISO() });
-  order.updatedAt = nowISO();
-
-  res.json({ message: "Order quoted successfully", order: attachTailorSnapshot(order) });
 };
 
 // POST /api/orders/:id/accept (Customer)
-const acceptQuote = (req, res) => {
-  const order = findOrderOr404(req.params.id, res);
-  if (!order) return;
+const acceptQuote = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
 
-  if (order.status !== "QUOTED") {
-    return res.status(400).json({ error: "Order must be QUOTED to accept" });
+    if (order.status !== "QUOTED") {
+      return res.status(400).json({ error: "Order must be QUOTED to accept" });
+    }
+
+    order.status = "ACCEPTED";
+    order.history.push({ status: "ACCEPTED", note: "Quote accepted", at: nowISO() });
+    order.updatedAt = nowISO();
+
+    await order.save();
+
+    const [withTailor] = await attachTailorSnapshots(order.toObject());
+    res.json({ message: "Quote accepted", order: withTailor });
+  } catch (err) {
+    console.error("acceptQuote error:", err);
+    return res.status(500).json({ error: "Failed to accept quote" });
   }
-
-  order.status = "ACCEPTED";
-  order.history.push({ status: "ACCEPTED", note: "Quote accepted", at: nowISO() });
-  order.updatedAt = nowISO();
-
-  res.json({ message: "Quote accepted", order: attachTailorSnapshot(order) });
 };
 
-// PATCH /api/orders/:id/status (Tailor progress OR cancel)
-const updateOrderStatus = (req, res) => {
-  const order = findOrderOr404(req.params.id, res);
-  if (!order) return;
+// PATCH /api/orders/:id/status
+const updateOrderStatus = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
 
-  const { status, note } = req.body;
+    const { status, note } = req.body;
+    const allowed = ["IN_PROGRESS", "READY", "DELIVERED", "CANCELLED"];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${allowed.join(", ")}` });
+    }
 
-  const allowed = ["IN_PROGRESS", "READY", "DELIVERED", "CANCELLED"];
-  if (!allowed.includes(status)) {
-    return res.status(400).json({ error: `status must be one of: ${allowed.join(", ")}` });
-  }
-
-  if (status === "CANCELLED" && !canCancel(order)) {
-    return res.status(400).json({ error: "Order cannot be cancelled at this stage" });
-  }
-
-  order.status = status;
-  order.history.push({ status, note: note || "", at: nowISO() });
-  order.updatedAt = nowISO();
-
-  res.json({ message: "Order status updated", order: attachTailorSnapshot(order) });
-};
-
-// ✅ NEW: PATCH /api/orders/:id  (generic update endpoint)
-const patchOrder = (req, res) => {
-  const order = findOrderOr404(req.params.id, res);
-  if (!order) return;
-
-  const { status, note } = req.body;
-
-  const allowed = ["CANCELLED", "IN_PROGRESS", "READY", "DELIVERED"];
-  if (status && !allowed.includes(status)) {
-    return res.status(400).json({
-      error: `status (if provided) must be one of: ${allowed.join(", ")}`,
-    });
-  }
-
-  if (status === "CANCELLED" && !canCancel(order)) {
-    return res.status(400).json({ error: "Order cannot be cancelled at this stage" });
-  }
-
-  if (status) {
     order.status = status;
-    order.history.push({ status, note: note || "Updated", at: nowISO() });
+    order.history.push({ status, note: note || "", at: nowISO() });
+    order.updatedAt = nowISO();
+
+    await order.save();
+
+    const [withTailor] = await attachTailorSnapshots(order.toObject());
+    res.json({ message: "Order status updated", order: withTailor });
+  } catch (err) {
+    console.error("updateOrderStatus error:", err);
+    return res.status(500).json({ error: "Failed to update status" });
   }
-
-  order.updatedAt = nowISO();
-  res.json({ message: "Order updated", order: attachTailorSnapshot(order) });
 };
 
-// GET /api/orders/customer/summary?userId=usr_xxx
-const customerSummary = (req, res) => {
-  const userId = req.query.userId;
-  if (!userId) return res.status(400).json({ error: "userId query param required" });
+// PATCH /api/orders/:id  (generic patch)
+const patchOrder = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
 
-  const my = orders.filter((o) => String(o.userId) === String(userId));
+    const { status, note } = req.body;
+    const allowed = ["CANCELLED", "IN_PROGRESS", "READY", "DELIVERED"];
+    if (status && !allowed.includes(status)) {
+      return res.status(400).json({ error: `status (if provided) must be one of: ${allowed.join(", ")}` });
+    }
 
-  const summary = {
-    requested: my.filter((o) => o.status === "REQUESTED").length,
-    quoted: my.filter((o) => o.status === "QUOTED").length,
-    accepted: my.filter((o) => o.status === "ACCEPTED").length,
-    inProgress: my.filter((o) => o.status === "IN_PROGRESS").length,
-    ready: my.filter((o) => o.status === "READY").length,
-    delivered: my.filter((o) => o.status === "DELIVERED").length,
-    cancelled: my.filter((o) => o.status === "CANCELLED").length,
-    total: my.length,
-  };
+    if (status) {
+      order.status = status;
+      order.history.push({ status, note: note || "Updated", at: nowISO() });
+    }
 
-  res.json({ summary, recent: my.slice(-10).reverse().map(attachTailorSnapshot) });
+    order.updatedAt = nowISO();
+    await order.save();
+
+    const [withTailor] = await attachTailorSnapshots(order.toObject());
+    res.json({ message: "Order updated", order: withTailor });
+  } catch (err) {
+    console.error("patchOrder error:", err);
+    return res.status(500).json({ error: "Failed to patch order" });
+  }
 };
 
+// GET /api/orders/customer/summary?userId=xxx
+const customerSummary = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ error: "userId query param required" });
+
+    const my = await Order.find({ userId: String(userId) }).lean();
+    const summary = {
+      requested: my.filter((o) => o.status === "REQUESTED").length,
+      quoted: my.filter((o) => o.status === "QUOTED").length,
+      accepted: my.filter((o) => o.status === "ACCEPTED").length,
+      inProgress: my.filter((o) => o.status === "IN_PROGRESS").length,
+      ready: my.filter((o) => o.status === "READY").length,
+      delivered: my.filter((o) => o.status === "DELIVERED").length,
+      cancelled: my.filter((o) => o.status === "CANCELLED").length,
+      total: my.length,
+    };
+
+    const recent = my.slice(-10).reverse();
+    const withTailor = await attachTailorSnapshots(recent);
+
+    res.json({ summary, recent: withTailor });
+  } catch (err) {
+    console.error("customerSummary error:", err);
+    return res.status(500).json({ error: "Failed to load summary" });
+  }
+};
 
 // GET /api/orders/tailor/summary?tailorId=1
-const tailorSummary = (req, res) => {
-  const tailorId = Number(req.query.tailorId);
-  if (!tailorId) return res.status(400).json({ error: "tailorId query param required" });
+const tailorSummary = async (req, res) => {
+  try {
+    const tailorId = Number(req.query.tailorId);
+    if (!tailorId) return res.status(400).json({ error: "tailorId query param required" });
 
-  const my = orders.filter((o) => Number(o.tailorId) === tailorId);
+    const my = await Order.find({ tailorId }).lean();
+    const summary = {
+      requested: my.filter((o) => o.status === "REQUESTED").length,
+      quoted: my.filter((o) => o.status === "QUOTED").length,
+      accepted: my.filter((o) => o.status === "ACCEPTED").length,
+      inProgress: my.filter((o) => o.status === "IN_PROGRESS").length,
+      ready: my.filter((o) => o.status === "READY").length,
+      delivered: my.filter((o) => o.status === "DELIVERED").length,
+      cancelled: my.filter((o) => o.status === "CANCELLED").length,
+      total: my.length,
+    };
 
-  const summary = {
-    requested: my.filter((o) => o.status === "REQUESTED").length,
-    quoted: my.filter((o) => o.status === "QUOTED").length,
-    accepted: my.filter((o) => o.status === "ACCEPTED").length,
-    inProgress: my.filter((o) => o.status === "IN_PROGRESS").length,
-    ready: my.filter((o) => o.status === "READY").length,
-    delivered: my.filter((o) => o.status === "DELIVERED").length,
-    cancelled: my.filter((o) => o.status === "CANCELLED").length,
-    total: my.length,
-  };
+    const recent = my.slice(-10).reverse();
+    const withTailor = await attachTailorSnapshots(recent);
 
-  res.json({ summary, recent: my.slice(-10).reverse().map(attachTailorSnapshot) });
+    res.json({ summary, recent: withTailor });
+  } catch (err) {
+    console.error("tailorSummary error:", err);
+    return res.status(500).json({ error: "Failed to load summary" });
+  }
 };
 
 module.exports = {

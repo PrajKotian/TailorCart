@@ -1,50 +1,12 @@
 // BackEnd/controllers/authController.js
 const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
-// ✅ robust datastore loader (won't crash if path differs)
-function loadStore() {
-  const candidates = ["../data/dataStore", "../models/dataStore", "../dataStore"];
-  for (const p of candidates) {
-    try {
-      return require(p);
-    } catch {}
-  }
-
-  // Fallback in-memory store (so backend runs no matter what)
-  if (!global.__TC_STORE__) {
-    global.__TC_STORE__ = {
-      users: [],
-      tailors: [],
-      orders: [],
-      nextIds: {
-        _u: 1,
-        _t: 1,
-        _o: 1,
-        getNextUserId() {
-          return this._u++;
-        },
-        getNextTailorId() {
-          return this._t++;
-        },
-        getNextOrderId() {
-          return this._o++;
-        },
-      },
-    };
-  }
-  return global.__TC_STORE__;
+// Helper: next numeric id
+async function getNextUserId() {
+  const last = await User.findOne().sort({ id: -1 }).select("id").lean();
+  return (last?.id || 0) + 1;
 }
-
-const store = loadStore();
-const users = store.users || (store.users = []);
-const nextIds =
-  store.nextIds ||
-  (store.nextIds = {
-    _u: 1,
-    getNextUserId() {
-      return this._u++;
-    },
-  });
 
 // POST /api/auth/signup
 const signup = async (req, res) => {
@@ -55,31 +17,32 @@ const signup = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const exists = users.find(
-      (u) => String(u.email || "").toLowerCase() === String(email).toLowerCase()
-    );
+    const emailNorm = String(email).toLowerCase().trim();
+
+    const exists = await User.findOne({ email: emailNorm }).lean();
     if (exists) {
       return res.status(409).json({ error: "Email already registered" });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(String(password), 10);
 
-    const newUser = {
-      id: typeof nextIds.getNextUserId === "function" ? nextIds.getNextUserId() : Date.now(),
-      name,
-      email,
+    const newUser = await User.create({
+      id: await getNextUserId(),
+      name: String(name).trim(),
+      email: emailNorm,
       password: hashed,
       role: String(role).toLowerCase(),
-
-      // ✅ add addresses container (empty)
-      addresses: [],
-    };
-
-    users.push(newUser);
+      addresses: [], // ✅ keep addresses
+    });
 
     return res.status(201).json({
       message: "User registered successfully",
-      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role },
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
     });
   } catch (err) {
     console.error("Signup error:", err);
@@ -95,12 +58,12 @@ const login = async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const user = users.find(
-      (u) => String(u.email || "").toLowerCase() === String(email).toLowerCase()
-    );
+    const emailNorm = String(email).toLowerCase().trim();
+
+    const user = await User.findOne({ email: emailNorm }).lean();
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
 
-    const ok = await bcrypt.compare(password, user.password);
+    const ok = await bcrypt.compare(String(password), String(user.password));
     if (!ok) return res.status(401).json({ error: "Invalid email or password" });
 
     return res.json({
@@ -114,30 +77,45 @@ const login = async (req, res) => {
 };
 
 // ✅ GET /api/auth/addresses?userId=123
-const getAddresses = (req, res) => {
-  const userId = String(req.query.userId || "");
-  if (!userId) return res.status(400).json({ error: "userId is required" });
+const getAddresses = async (req, res) => {
+  try {
+    const userId = Number(req.query.userId);
+    if (!userId) return res.status(400).json({ error: "userId is required" });
 
-  const user = users.find((u) => String(u.id) === userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
+    const user = await User.findOne({ id: userId }).lean();
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-  if (!Array.isArray(user.addresses)) user.addresses = [];
-  return res.json({ addresses: user.addresses });
+    return res.json({ addresses: Array.isArray(user.addresses) ? user.addresses : [] });
+  } catch (err) {
+    console.error("getAddresses error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 // ✅ PUT /api/auth/addresses?userId=123  { addresses: [...] }
-const putAddresses = (req, res) => {
-  const userId = String(req.query.userId || "");
-  if (!userId) return res.status(400).json({ error: "userId is required" });
+const putAddresses = async (req, res) => {
+  try {
+    const userId = Number(req.query.userId);
+    if (!userId) return res.status(400).json({ error: "userId is required" });
 
-  const user = users.find((u) => String(u.id) === userId);
-  if (!user) return res.status(404).json({ error: "User not found" });
+    const addresses = req.body?.addresses;
+    if (!Array.isArray(addresses)) {
+      return res.status(400).json({ error: "addresses must be an array" });
+    }
 
-  const addresses = req.body?.addresses;
-  if (!Array.isArray(addresses)) return res.status(400).json({ error: "addresses must be an array" });
+    const updated = await User.findOneAndUpdate(
+      { id: userId },
+      { $set: { addresses } },
+      { new: true }
+    ).lean();
 
-  user.addresses = addresses;
-  return res.json({ message: "Addresses updated", addresses: user.addresses });
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    return res.json({ message: "Addresses updated", addresses: updated.addresses || [] });
+  } catch (err) {
+    console.error("putAddresses error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 module.exports = { signup, login, getAddresses, putAddresses };

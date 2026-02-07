@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -24,6 +24,7 @@
 
     <!-- Home “WOW” CSS -->
     <link rel="stylesheet" href="../styles/home.css" />
+    <link rel="stylesheet" href="../styles/responsive.css" />
   </head>
 
   <body class="tc-home">
@@ -97,7 +98,10 @@
           </ul>
 
           <!-- RIGHT SIDE: GUEST -->
-          <div class="d-flex gap-2 align-items-center" id="navGuest">
+          <div
+            class="d-flex flex-column flex-lg-row gap-2 align-items-stretch align-items-lg-center mt-3 mt-lg-0"
+            id="navGuest"
+          >
             <a
               href="login.html"
               class="btn btn-link text-decoration-none nav-link-btn"
@@ -967,7 +971,7 @@
             <ul class="list-unstyled small footer-links">
               <li><a href="#categories">Browse Categories</a></li>
               <li><a href="tailors.html">Find Tailors</a></li>
-              <li><a href="#">My Orders</a></li>
+              <li><a href="customer-dashboard.html">My Orders</a></li>
               <li><a href="#">Help Center</a></li>
             </ul>
           </div>
@@ -976,7 +980,7 @@
             <h6 class="text-white mb-3">For Tailors</h6>
             <ul class="list-unstyled small footer-links">
               <li><a href="signup-tailor.html">Join as Tailor</a></li>
-              <li><a href="#">Tailor Dashboard</a></li>
+              <li><a href="tailor-dashboard.html">Tailor Dashboard</a></li>
               <li><a href="#">Resources</a></li>
               <li><a href="#">Support</a></li>
             </ul>

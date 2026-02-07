@@ -2,7 +2,32 @@
 console.log("✅ main.js loaded");
 
 // ---------- CONFIG ----------
-window.API_BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+// Default backend is port 3000 (your current server.js)
+(function initApiBase() {
+  const DEFAULT_LOCAL_API = "http://localhost:3000";
+
+  // If you ever deploy later, you can set this in HTML:
+  // <meta name="tc-api-base" content="https://your-backend-domain.com">
+  const meta = document.querySelector('meta[name="tc-api-base"]');
+  const metaUrl = meta?.getAttribute("content")?.trim();
+
+  // If some page already set window.API_BASE_URL, respect it
+  if (window.API_BASE_URL && typeof window.API_BASE_URL === "string") {
+    window.API_BASE_URL = window.API_BASE_URL.replace(/\/$/, "");
+    return;
+  }
+
+  // Prefer meta if present (deployment-friendly)
+  if (metaUrl) {
+    window.API_BASE_URL = metaUrl.replace(/\/$/, "");
+    return;
+  }
+
+  // Local dev default
+  window.API_BASE_URL = DEFAULT_LOCAL_API;
+})();
+
+console.log("🌐 API_BASE_URL =", window.API_BASE_URL);
 
 // default images when tailor doesn't upload any
 const DEFAULT_MALE_IMAGE = "../assets/images/tailor-default-male.jpg";
@@ -198,15 +223,9 @@ function initTailorListPage() {
   const priceValueEl = document.getElementById("filterPriceValue");
   const ratingSelect = document.getElementById("filterRating");
   const deliverySelect = document.getElementById("filterDelivery");
-  const serviceCheckboxes = document.querySelectorAll(
-    ".filter-service-checkbox"
-  );
-  const applyFiltersSidebarBtn = document.getElementById(
-    "applyFiltersSidebarBtn"
-  );
-  const resetFiltersSidebarBtn = document.getElementById(
-    "resetFiltersSidebarBtn"
-  );
+  const serviceCheckboxes = document.querySelectorAll(".filter-service-checkbox");
+  const applyFiltersSidebarBtn = document.getElementById("applyFiltersSidebarBtn");
+  const resetFiltersSidebarBtn = document.getElementById("resetFiltersSidebarBtn");
 
   const pageSize = 8;
   let allTailors = [];
