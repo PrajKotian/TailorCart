@@ -24,7 +24,7 @@ console.log("✅ main.js loaded");
   }
 
   // Local dev default
-  window.API_BASE_URL = DEFAULT_LOCAL_API;
+  window.API_BASE_URL = "https://tailorcart.onrender.com";
 })();
 
 console.log("🌐 API_BASE_URL =", window.API_BASE_URL);
