@@ -25,6 +25,9 @@
     CANCELLED: "danger",
   };
 
+  // 🔥 PAYMENT CONFIG (dummy but realistic)
+  const ADVANCE_PERCENT = 30; // 30% advance, remaining on delivery/ready
+
   const $ = (id) => document.getElementById(id);
 
   function money(v) {
@@ -52,6 +55,36 @@
     const bs = STATUS_BADGE[s] || "secondary";
     const label = STATUS_LABELS[s] || s;
     return `<span class="badge bg-${bs}">${label}</span>`;
+  }
+
+  // ✅ Payment helpers (reads your backend fields)
+  function getTotalAmount(order) {
+    const price = order?.raw?.quote?.price;
+    const n = Number(price);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function getAdvanceDue(order) {
+    const total = getTotalAmount(order);
+    if (!total) return 0;
+    return Math.round((total * ADVANCE_PERCENT) / 100);
+  }
+
+  function getPaidInfo(order) {
+    const adv = Number(order?.raw?.payments?.advancePaid || 0);
+    const totalPaid = Number(order?.raw?.payments?.totalPaid || 0);
+    return { advancePaid: adv, totalPaid };
+  }
+
+  function paymentStatusPill(order) {
+    const total = getTotalAmount(order);
+    if (!total) return `<span class="text-muted small">—</span>`;
+
+    const { totalPaid } = getPaidInfo(order);
+
+    if (totalPaid <= 0) return `<span class="badge bg-danger-subtle text-danger border">Unpaid</span>`;
+    if (totalPaid < total) return `<span class="badge bg-warning-subtle text-warning border">Partial</span>`;
+    return `<span class="badge bg-success-subtle text-success border">Paid</span>`;
   }
 
   function normalizeOrder(o) {
@@ -168,22 +201,155 @@
     });
   }
 
- // -------------------- CHAT --------------------
-function openOrderChat(order) {
-  // Open Instagram-like inbox and auto-select this tailor
-  // also pass orderId for future backend filtering
-  const tailorId = order?.tailorId ?? "";
-  const orderId = order?.id ?? "";
-  if (!tailorId) {
-    // fallback: open inbox without pre-select
-    window.location.href = `inbox.html`;
-    return;
+  // -------------------- CHAT --------------------
+  function openOrderChat(order) {
+    const tailorId = order?.tailorId ?? "";
+    const orderId = order?.id ?? "";
+    if (!tailorId) {
+      window.location.href = `inbox.html`;
+      return;
+    }
+    window.location.href =
+      `inbox.html?tailorId=${encodeURIComponent(tailorId)}&orderId=${encodeURIComponent(orderId)}`;
   }
 
-  window.location.href =
-    `inbox.html?tailorId=${encodeURIComponent(tailorId)}&orderId=${encodeURIComponent(orderId)}`;
-}
+  // ============================
+  // ✅ PAYMENT MODAL (NO HTML CHANGE REQUIRED)
+  // ============================
+  function ensurePaymentModalExists() {
+    if ($("cdPayModal")) return;
 
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `
+      <div class="modal fade" id="cdPayModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <div>
+                <h5 class="modal-title mb-0">Secure Payment</h5>
+                <div class="small text-muted">Dummy Razorpay-style checkout (college demo)</div>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+              <input type="hidden" id="cdPayOrderId" />
+              <input type="hidden" id="cdPayType" />
+
+              <div class="border rounded-3 p-3 mb-3 bg-light">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="fw-semibold" id="cdPayTitle">Payment</div>
+                    <div class="text-muted small" id="cdPaySub">Order</div>
+                  </div>
+                  <div class="text-end">
+                    <div class="small text-muted">Amount</div>
+                    <div class="fs-4 fw-bold" id="cdPayAmount">₹0</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="border rounded-3 p-3 h-100">
+                    <div class="fw-semibold mb-2">Pay via UPI</div>
+                    <div class="small text-muted mb-2">Google Pay / PhonePe / Paytm</div>
+                    <input class="form-control mb-2" id="cdPayUpi" placeholder="yourupi@bank" />
+                    <button class="btn btn-outline-primary w-100" id="cdPayUpiBtn">Pay with UPI</button>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="border rounded-3 p-3 h-100">
+                    <div class="fw-semibold mb-2">Pay via Card</div>
+                    <div class="small text-muted mb-2">Visa / MasterCard / RuPay</div>
+                    <input class="form-control mb-2" placeholder="Card number (dummy)" />
+                    <div class="d-flex gap-2 mb-2">
+                      <input class="form-control" placeholder="MM/YY" />
+                      <input class="form-control" placeholder="CVV" />
+                    </div>
+                    <button class="btn btn-primary w-100" id="cdPayCardBtn">Pay with Card</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-danger small d-none mt-3" id="cdPayError"></div>
+              <div class="text-muted small mt-3">
+                Note: This is a dummy payment module for academic demonstration. No real money is processed.
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(wrap);
+  }
+
+  function openPaymentModal({ order, type }) {
+    ensurePaymentModalExists();
+
+    const total = getTotalAmount(order);
+    const advanceDue = getAdvanceDue(order);
+    const remainingDue = Math.max(total - Number(order.raw?.payments?.totalPaid || 0), 0);
+
+    const amount = type === "advance" ? advanceDue : remainingDue;
+
+    $("cdPayOrderId").value = order.id;
+    $("cdPayType").value = type;
+
+    $("cdPayTitle").textContent = type === "advance" ? "Advance Payment" : "Remaining Payment";
+    $("cdPaySub").textContent = `Order #${String(order.id).padStart(4, "0")} • ${order.garment}`;
+    $("cdPayAmount").textContent = money(amount);
+
+    $("cdPayError").classList.add("d-none");
+    $("cdPayError").textContent = "";
+
+    const modalEl = $("cdPayModal");
+    const modal = window.bootstrap ? new window.bootstrap.Modal(modalEl) : null;
+    modal?.show();
+
+    const runPayment = async (method) => {
+      try {
+        const payOrderId = $("cdPayOrderId").value;
+        const payType = $("cdPayType").value;
+
+        $("cdPayUpiBtn").disabled = true;
+        $("cdPayCardBtn").disabled = true;
+
+        // Fake loading UX
+        $("cdPayUpiBtn").textContent = "Processing...";
+        $("cdPayCardBtn").textContent = "Processing...";
+
+        // ✅ IMPORTANT: use OrderStore methods + correct backend routes
+        if (!window.OrderStore) throw new Error("OrderStore not loaded.");
+
+        if (payType === "advance") {
+          await window.OrderStore.payAdvance(payOrderId, { amount, method });
+        } else {
+          await window.OrderStore.payRemaining(payOrderId, { amount, method });
+        }
+
+        modal?.hide();
+        alert("✅ Payment Successful (Dummy Razorpay Checkout)");
+        await reloadAndRender();
+      } catch (e) {
+        $("cdPayError").textContent = e?.message || "Payment failed.";
+        $("cdPayError").classList.remove("d-none");
+      } finally {
+        $("cdPayUpiBtn").disabled = false;
+        $("cdPayCardBtn").disabled = false;
+        $("cdPayUpiBtn").textContent = "Pay with UPI";
+        $("cdPayCardBtn").textContent = "Pay with Card";
+      }
+    };
+
+    $("cdPayUpiBtn").onclick = () => runPayment("UPI");
+    $("cdPayCardBtn").onclick = () => runPayment("CARD");
+  }
 
   // -------------------- RENDER --------------------
   function renderSummary(summary, totalFallback) {
@@ -218,11 +384,32 @@ function openOrderChat(order) {
       .join("");
   }
 
+  function ensurePaymentColumnHeader() {
+    // ✅ Adds Payment column header if not present (no HTML edits)
+    const tableWrap = $("cdOrdersTableWrap");
+    if (!tableWrap) return;
+
+    const theadRow = tableWrap.querySelector("thead tr");
+    if (!theadRow) return;
+
+    const existing = Array.from(theadRow.children).some((th) => th?.textContent?.trim() === "Payment");
+    if (existing) return;
+
+    // Insert Payment column before "Created"
+    const thPayment = document.createElement("th");
+    thPayment.textContent = "Payment";
+
+    const before = theadRow.children[5]; // currently "Created"
+    theadRow.insertBefore(thPayment, before);
+  }
+
   function renderTable(orders, filterStatus) {
     const empty = $("cdOrdersEmpty");
     const tableWrap = $("cdOrdersTableWrap");
     const tbody = $("cdOrdersTbody");
     if (!empty || !tableWrap || !tbody) return;
+
+    ensurePaymentColumnHeader();
 
     const rows =
       filterStatus && filterStatus !== "ALL"
@@ -255,6 +442,27 @@ function openOrderChat(order) {
               : `<button class="btn btn-sm btn-primary" data-action="review" data-id="${o.id}">Rate & Review</button>`
             : "";
 
+        // ✅ Payment actions
+        const total = getTotalAmount(o);
+        const advanceDue = getAdvanceDue(o);
+        const { advancePaid, totalPaid } = getPaidInfo(o);
+        const remainingDue = Math.max(total - totalPaid, 0);
+
+        const canPayAdvance = o.status === "ACCEPTED" && total > 0 && advancePaid <= 0;
+        const canPayRemaining = o.status === "READY" && total > 0 && remainingDue > 0;
+
+        const payAdvanceBtn = canPayAdvance
+          ? `<button class="btn btn-sm btn-primary" data-action="pay-advance" data-id="${o.id}">
+               Pay Advance (${money(advanceDue)})
+             </button>`
+          : "";
+
+        const payRemainingBtn = canPayRemaining
+          ? `<button class="btn btn-sm btn-success" data-action="pay-remaining" data-id="${o.id}">
+               Pay Remaining (${money(remainingDue)})
+             </button>`
+          : "";
+
         return `
           <tr>
             <td class="fw-semibold">${label}</td>
@@ -262,6 +470,7 @@ function openOrderChat(order) {
             <td>${o.garment}</td>
             <td>${statusBadge(o.status)}</td>
             <td>${o.quotePrice == null ? "—" : money(o.quotePrice)}</td>
+            <td>${paymentStatusPill(o)}</td>
             <td class="text-muted small">${fmtDate(o.createdAt)}</td>
             <td class="text-end">
               <div class="d-flex justify-content-end gap-2 flex-wrap">
@@ -272,6 +481,8 @@ function openOrderChat(order) {
                     ? `<button class="btn btn-sm btn-success" data-action="accept" data-id="${o.id}">Accept</button>`
                     : ""
                 }
+                ${payAdvanceBtn}
+                ${payRemainingBtn}
                 ${
                   ["REQUESTED", "QUOTED", "ACCEPTED"].includes(o.status)
                     ? `<button class="btn btn-sm btn-outline-danger" data-action="cancel" data-id="${o.id}">Cancel</button>`
@@ -448,6 +659,15 @@ function openOrderChat(order) {
         } finally {
           btn.disabled = false;
         }
+      }
+
+      // ✅ Payment actions (new)
+      if (action === "pay-advance") {
+        return openPaymentModal({ order, type: "advance" });
+      }
+
+      if (action === "pay-remaining") {
+        return openPaymentModal({ order, type: "remaining" });
       }
 
       if (action === "cancel") {

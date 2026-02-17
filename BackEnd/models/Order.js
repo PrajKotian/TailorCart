@@ -12,11 +12,53 @@ const QuoteSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// ✅ Backward-compatible: keeps your existing fields + adds new ones safely
 const PaymentSchema = new mongoose.Schema(
   {
-    advancePaid: { type: Number, default: 0 },
-    totalPaid: { type: Number, default: 0 },
-    currency: { type: String, default: "INR" },
+    // ----------------------
+    // EXISTING (DO NOT BREAK)
+    // ----------------------
+    advancePaid: { type: Number, default: 0 }, // keep
+    totalPaid: { type: Number, default: 0 },   // keep
+    currency: { type: String, default: "INR" },// keep
+
+    // ----------------------
+    // NEW (for professional payment flow)
+    // ----------------------
+    advancePercent: { type: Number, default: 30 }, // e.g. 30% advance
+    advanceDue: { type: Number, default: 0 },      // computed after accept
+    remainingDue: { type: Number, default: 0 },    // computed after accept
+
+    advanceStatus: {
+      type: String,
+      enum: ["UNPAID", "PAID"],
+      default: "UNPAID",
+    },
+    remainingStatus: {
+      type: String,
+      enum: ["UNPAID", "PAID"],
+      default: "UNPAID",
+    },
+
+    // what user selected in UI
+    advanceMethod: {
+      type: String,
+      enum: ["UPI", "CARD"],
+      default: "UPI",
+    },
+    remainingMethod: {
+      type: String,
+      enum: ["COD", "UPI", "CARD"],
+      default: "COD",
+    },
+
+    // mock gateway info (demo)
+    gateway: { type: String, default: "MOCK_RAZORPAY" },
+    lastPaymentId: { type: String, default: "" },
+
+    // timestamps
+    advancePaidAt: { type: String, default: null },   // ISO string
+    remainingPaidAt: { type: String, default: null }, // ISO string
   },
   { _id: false }
 );
@@ -63,7 +105,6 @@ const OrderSchema = new mongoose.Schema(
     updatedAt: { type: String, required: true },
 
     reviewId: { type: Number, default: null },
-
   },
   { timestamps: false }
 );

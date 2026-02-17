@@ -14,6 +14,10 @@ const {
   patchOrder,
   customerSummary,
   tailorSummary,
+
+  // ✅ Payment controllers
+  payAdvance,
+  payRemaining,
 } = require("../controllers/orderController"); // ✅ FIXED PATH
 
 router.get("/", getAllOrders);
@@ -30,6 +34,10 @@ router.post("/", createOrderRequest);
 
 router.post("/:id/quote", quoteOrder);
 router.post("/:id/accept", acceptQuote);
+
+// ✅ NEW: payment routes (must match frontend + controller expectation)
+router.post("/:id/pay-advance", payAdvance);
+router.post("/:id/pay-remaining", payRemaining);
 
 router.patch("/:id/status", updateOrderStatus);
 router.patch("/:id", patchOrder);

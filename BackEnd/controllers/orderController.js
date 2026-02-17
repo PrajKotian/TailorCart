@@ -4,6 +4,18 @@ const Tailor = require("../models/Tailor");
 
 const nowISO = () => new Date().toISOString();
 
+// ✅ Dummy Razorpay-like payment id generator
+function makePaymentId(prefix = "pay") {
+  return `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`;
+}
+
+// ✅ clamp helper (prevents negative / overflow)
+function clampNumber(n, min, max) {
+  const num = Number(n);
+  if (!Number.isFinite(num)) return min;
+  return Math.max(min, Math.min(max, num));
+}
+
 async function attachTailorSnapshots(orderDocs) {
   const orders = Array.isArray(orderDocs) ? orderDocs : [orderDocs];
 
@@ -80,6 +92,8 @@ const createOrderRequest = async (req, res) => {
         note: "",
         quotedAt: null,
       },
+
+      // ✅ Existing payments fields remain the same
       payments: {
         advancePaid: 0,
         totalPaid: 0,
@@ -106,7 +120,6 @@ const createOrderRequest = async (req, res) => {
 };
 
 // GET /api/orders  → list all orders (admin/dev)
-// supports filters: /api/orders?userId=xxx or /api/orders?tailorId=1
 const getAllOrders = async (req, res) => {
   try {
     const { userId, tailorId } = req.query;
@@ -231,6 +244,115 @@ const acceptQuote = async (req, res) => {
   }
 };
 
+// ✅ NEW: POST /api/orders/:id/pay-advance (Customer)
+// Rule: allowed only after quote accepted (ACCEPTED or later)
+// Default advance: 30% of quote price (or can pass amount in body)
+const payAdvance = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (!["ACCEPTED", "IN_PROGRESS", "READY", "DELIVERED"].includes(order.status)) {
+      return res.status(400).json({ error: "Advance payment allowed only after quote is accepted" });
+    }
+
+    const total = Number(order.quote?.price || 0);
+    if (!total || total <= 0) {
+      return res.status(400).json({ error: "Order must have a valid quoted price to pay" });
+    }
+
+    // already paid advance?
+    if ((order.payments?.advancePaid || 0) > 0) {
+      return res.status(400).json({ error: "Advance already paid" });
+    }
+
+    // amount can be passed, else default 30%
+    const requestedAmount = req.body?.amount;
+    const defaultAdvance = Math.round(total * 0.3);
+    const advanceAmount = clampNumber(requestedAmount ?? defaultAdvance, 1, total);
+
+    // update payments
+    order.payments.advancePaid = advanceAmount;
+    order.payments.totalPaid = clampNumber((order.payments.totalPaid || 0) + advanceAmount, 0, total);
+
+    // history log (looks like real gateway)
+    const pid = makePaymentId("rzp");
+    order.history.push({
+      status: order.status,
+      note: `Payment success (Advance) • RazorpayRef: ${pid} • ₹${advanceAmount}`,
+      at: nowISO(),
+    });
+
+    order.updatedAt = nowISO();
+    await order.save();
+
+    const [withTailor] = await attachTailorSnapshots(order.toObject());
+    res.json({
+      message: "Advance payment recorded (dummy Razorpay)",
+      payment: { paymentId: pid, type: "ADVANCE", amount: advanceAmount, currency: order.payments.currency || "INR" },
+      order: withTailor,
+    });
+  } catch (err) {
+    console.error("payAdvance error:", err);
+    return res.status(500).json({ error: "Failed to record advance payment" });
+  }
+};
+
+// ✅ NEW: POST /api/orders/:id/pay-remaining (Customer)
+// Rule: allowed only when order is READY (or later)
+// Remaining = quote.price - totalPaid
+const payRemaining = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const order = await Order.findOne({ id });
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (!["READY", "DELIVERED"].includes(order.status)) {
+      return res.status(400).json({ error: "Remaining payment allowed only when order is READY / at delivery" });
+    }
+
+    const total = Number(order.quote?.price || 0);
+    if (!total || total <= 0) {
+      return res.status(400).json({ error: "Order must have a valid quoted price to pay" });
+    }
+
+    const alreadyPaid = Number(order.payments?.totalPaid || 0);
+    const remaining = Math.max(0, total - alreadyPaid);
+
+    if (remaining <= 0) {
+      return res.status(400).json({ error: "No remaining payment pending" });
+    }
+
+    // amount can be passed but cannot exceed remaining
+    const requestedAmount = req.body?.amount;
+    const payAmount = clampNumber(requestedAmount ?? remaining, 1, remaining);
+
+    order.payments.totalPaid = clampNumber(alreadyPaid + payAmount, 0, total);
+
+    const pid = makePaymentId("rzp");
+    order.history.push({
+      status: order.status,
+      note: `Payment success (Remaining) • RazorpayRef: ${pid} • ₹${payAmount}`,
+      at: nowISO(),
+    });
+
+    // Optional: if fully paid & delivered already -> keep as is
+    order.updatedAt = nowISO();
+    await order.save();
+
+    const [withTailor] = await attachTailorSnapshots(order.toObject());
+    res.json({
+      message: "Remaining payment recorded (dummy Razorpay)",
+      payment: { paymentId: pid, type: "REMAINING", amount: payAmount, currency: order.payments.currency || "INR" },
+      order: withTailor,
+    });
+  } catch (err) {
+    console.error("payRemaining error:", err);
+    return res.status(500).json({ error: "Failed to record remaining payment" });
+  }
+};
+
 // PATCH /api/orders/:id/status
 const updateOrderStatus = async (req, res) => {
   try {
@@ -242,6 +364,15 @@ const updateOrderStatus = async (req, res) => {
     const allowed = ["IN_PROGRESS", "READY", "DELIVERED", "CANCELLED"];
     if (!allowed.includes(status)) {
       return res.status(400).json({ error: `status must be one of: ${allowed.join(", ")}` });
+    }
+
+    // ✅ payment safety: do not allow DELIVERED if remaining not paid
+    if (status === "DELIVERED") {
+      const total = Number(order.quote?.price || 0);
+      const paid = Number(order.payments?.totalPaid || 0);
+      if (total > 0 && paid < total) {
+        return res.status(400).json({ error: "Cannot mark DELIVERED until full payment is completed" });
+      }
     }
 
     order.status = status;
@@ -272,6 +403,15 @@ const patchOrder = async (req, res) => {
     }
 
     if (status) {
+      // ✅ payment safety: do not allow DELIVERED if remaining not paid
+      if (status === "DELIVERED") {
+        const total = Number(order.quote?.price || 0);
+        const paid = Number(order.payments?.totalPaid || 0);
+        if (total > 0 && paid < total) {
+          return res.status(400).json({ error: "Cannot mark DELIVERED until full payment is completed" });
+        }
+      }
+
       order.status = status;
       order.history.push({ status, note: note || "Updated", at: nowISO() });
     }
@@ -351,6 +491,11 @@ module.exports = {
   getOrdersByTailor,
   quoteOrder,
   acceptQuote,
+
+  // ✅ exported new payment controllers
+  payAdvance,
+  payRemaining,
+
   updateOrderStatus,
   patchOrder,
   customerSummary,

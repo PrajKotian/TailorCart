@@ -175,7 +175,7 @@
     if (window.AuthStore?.apiFetch) return window.AuthStore.apiFetch(path, options);
     if (window.AuthStore?.authFetch) return window.AuthStore.authFetch(path, options);
 
-    const base = "http://localhost:5000";
+    const base = "http://localhost:3000";
     const res = await fetch(base + path, { headers: { "Content-Type": "application/json" }, ...options });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.error || data?.message || "Request failed");

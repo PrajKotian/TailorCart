@@ -126,6 +126,43 @@ const OrderStore = (function () {
     return api(`/api/orders/tailor/summary?tailorId=${encodeURIComponent(tailorId)}`);
   }
 
+  // ✅ -------- Payment Methods (Dummy Razorpay look) --------
+  // These call your backend:
+  // POST /api/orders/:id/pay-advance
+  // POST /api/orders/:id/pay-remaining
+  //
+  // Note: backend currently supports { amount } in body (optional).
+  // We also accept `method` for UI usage (UPI/CARD) but we only send amount
+  // to avoid breaking your backend.
+
+  async function payAdvance(orderId, { amount, method } = {}) {
+    const body = {};
+    if (amount != null && amount !== "") body.amount = Number(amount);
+
+    // method is optional for UI only; not required by backend
+    // If later you add method logging in backend, you can send it too.
+    // body.method = method;
+
+    const data = await api(`/api/orders/${orderId}/pay-advance`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return data.order || data;
+  }
+
+  async function payRemaining(orderId, { amount, method } = {}) {
+    const body = {};
+    if (amount != null && amount !== "") body.amount = Number(amount);
+
+    // body.method = method;
+
+    const data = await api(`/api/orders/${orderId}/pay-remaining`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return data.order || data;
+  }
+
   // -------- Optional Local Fallback Methods --------
 
   function localGetAllOrders() {
@@ -149,6 +186,10 @@ const OrderStore = (function () {
     updateStatus,
     getCustomerSummary,
     getTailorSummary,
+
+    // ✅ Payments
+    payAdvance,
+    payRemaining,
 
     // Local fallback (optional)
     localGetAllOrders,

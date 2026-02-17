@@ -129,6 +129,47 @@
     return `₹${n.toLocaleString("en-IN")}`;
   }
 
+  // ✅ Payment info extractor (does NOT break if fields missing)
+  function paymentInfo(order) {
+    const quote = Number(order?.quote?.price ?? order?.quoteAmount ?? order?.priceQuote ?? order?.price ?? 0) || 0;
+
+    const adv = Number(order?.payments?.advancePaid ?? 0) || 0;
+    const paid = Number(order?.payments?.totalPaid ?? 0) || 0;
+
+    const remaining = Math.max(0, quote - paid);
+
+    return {
+      quote,
+      advancePaid: adv,
+      totalPaid: paid,
+      remaining,
+      isFullyPaid: quote > 0 ? remaining <= 0 : false,
+      hasQuote: quote > 0,
+    };
+  }
+
+  // ✅ Small professional payment pill(s)
+  function paymentPills(order) {
+    const p = paymentInfo(order);
+
+    // If no quote yet, nothing to show
+    if (!p.hasQuote) return "";
+
+    const advText = p.advancePaid > 0 ? `Adv: ${money(p.advancePaid)}` : "Adv: —";
+    const paidText = `Paid: ${money(p.totalPaid)}`;
+    const remText = p.remaining > 0 ? `Due: ${money(p.remaining)}` : "Due: ₹0";
+
+    const dueClass = p.remaining > 0 ? "warning" : "success";
+
+    return `
+      <div class="mt-1 d-flex flex-wrap gap-1">
+        <span class="badge bg-light text-dark border">${advText}</span>
+        <span class="badge bg-light text-dark border">${paidText}</span>
+        <span class="badge bg-${dueClass}-subtle text-${dueClass} border">${remText}</span>
+      </div>
+    `;
+  }
+
   function computeSummary(orders) {
     const count = (s) => orders.filter((o) => String(o.status || "").toUpperCase() === s).length;
     const requested = count("REQUESTED");
@@ -210,6 +251,17 @@
         const quote = o.quote?.price ?? o.quoteAmount ?? o.priceQuote ?? o.price ?? null;
         const created = fmtDate(o.createdAt);
 
+        // ✅ Payment gating for Delivered button (READY → deliver only if fully paid)
+        const p = paymentInfo(o);
+        const canDeliver = status !== "READY" ? true : p.hasQuote ? p.isFullyPaid : true;
+
+        const deliveredBtn =
+          status === "READY"
+            ? canDeliver
+              ? `<button class="btn btn-sm btn-success" data-act="delivered" data-id="${id}">Delivered</button>`
+              : `<button class="btn btn-sm btn-success" data-act="delivered" data-id="${id}" disabled title="Waiting for full payment from customer">Delivered</button>`
+            : "";
+
         const actions = `
           <div class="d-flex justify-content-end gap-2 flex-wrap">
             <button class="btn btn-sm btn-outline-secondary" data-act="view" data-id="${id}">View</button>
@@ -228,11 +280,7 @@
                 ? `<button class="btn btn-sm btn-outline-success" data-act="ready" data-id="${id}">Mark Ready</button>`
                 : ""
             }
-            ${
-              status === "READY"
-                ? `<button class="btn btn-sm btn-success" data-act="delivered" data-id="${id}">Delivered</button>`
-                : ""
-            }
+            ${deliveredBtn}
             ${
               status !== "DELIVERED" && status !== "CANCELLED"
                 ? `<button class="btn btn-sm btn-outline-danger" data-act="cancel" data-id="${id}">Cancel</button>`
@@ -247,7 +295,10 @@
             <td>${customer}</td>
             <td>${garment}</td>
             <td>${badge(status)}</td>
-            <td class="fw-semibold">${money(quote)}</td>
+            <td class="fw-semibold">
+              ${money(quote)}
+              ${paymentPills(o)}
+            </td>
             <td>${created}</td>
             <td class="text-end">${actions}</td>
           </tr>
@@ -271,6 +322,36 @@
     const daysValue = order.quote?.deliveryDays ?? "";
     const notes = order.designNotes || order.notes || order.description || "—";
     const created = fmtDate(order.createdAt);
+
+    // ✅ Payment breakdown inside modal (professional)
+    const p = paymentInfo(order);
+    const paymentBlock = p.hasQuote
+      ? `
+        <div class="col-12">
+          <div class="text-muted small">Payment Summary</div>
+          <div class="border rounded-3 p-2">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <span class="badge bg-light text-dark border">Quoted: ${money(p.quote)}</span>
+              <span class="badge bg-light text-dark border">Advance: ${p.advancePaid > 0 ? money(p.advancePaid) : "—"}</span>
+              <span class="badge bg-light text-dark border">Paid: ${money(p.totalPaid)}</span>
+              <span class="badge bg-${p.remaining > 0 ? "warning" : "success"}-subtle text-${p.remaining > 0 ? "warning" : "success"} border">
+                Remaining: ${money(p.remaining)}
+              </span>
+            </div>
+            ${
+              status === "READY" && p.remaining > 0
+                ? `<div class="small text-warning mt-2">Customer still has remaining payment due. You can mark DELIVERED only after full payment.</div>`
+                : ""
+            }
+          </div>
+        </div>
+      `
+      : `
+        <div class="col-12">
+          <div class="text-muted small">Payment Summary</div>
+          <div class="border rounded-3 p-2 small text-muted">No quote yet (payment starts only after customer accepts quote).</div>
+        </div>
+      `;
 
     modalBody.innerHTML = `
       <div class="mb-2">
@@ -300,6 +381,8 @@
           <div class="text-muted small">Notes / Instructions</div>
           <div class="border rounded-3 p-2">${notes}</div>
         </div>
+
+        ${paymentBlock}
 
         <div class="col-12">
           <div class="text-muted small mb-1">Send Quote (₹)</div>
@@ -373,6 +456,16 @@
     if (act === "view" || act === "quote") {
       openModal(order);
       return;
+    }
+
+    // ✅ Extra safety: prevent deliver click if button somehow enabled but payment not complete
+    if (act === "delivered") {
+      const status = String(order.status || "").toUpperCase();
+      const p = paymentInfo(order);
+      if (status === "READY" && p.hasQuote && !p.isFullyPaid) {
+        setMsg("⚠️ Cannot mark DELIVERED until full payment is completed by customer.", "error");
+        return;
+      }
     }
 
     try {
